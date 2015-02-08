@@ -1,0 +1,47 @@
+.notice{
+	padding-top: 1px;
+	padding-bottom: 6px;
+}
+.tShout{
+	margin-bottom: 10px;
+}
+.theadShout{
+	text-align: center;
+}
+.contentShout{
+	margin: 5px;
+}
+.contentShout > .tabShout{
+	background: #EAEAEA;
+	padding: 5px 10px;
+	border: 1px solid #CCCCCC;
+	border-bottom: 0px;
+	color: #555;
+	display: inline-block;
+	cursor: pointer;
+}
+.contentShout > .tabShout.selected{
+	background: transparent;
+	border-bottom: 1px solid #FBFBFB;
+	margin-bottom: -1px;
+	cursor: auto;
+}
+.wrapShout{
+	padding:5px;
+	background: #FBFBFB;
+	border:1px solid #CCCCCC;
+	overflow:auto;
+}
+.msgShout{
+	display: block;
+	color:#606060;
+}
+.msgShout > .time_msgShout{
+	margin-right: 3px;
+}
+.msgShout > .pm_inf{
+	color: #3e3e3e;
+}
+.msgShout > .content_msgShout{
+	margin-left: 3px;
+}

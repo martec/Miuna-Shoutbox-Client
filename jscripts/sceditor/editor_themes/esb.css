@@ -1,0 +1,9 @@
+.sceditor-button-spoiler div {
+	background-image:url(s.png);
+}
+.sceditor-button-imgur div {
+	background-image:url(imgur.png);
+}
+.sceditor-button-imgur div.imgurup {
+	background-image:url(spinner.gif) !important;
+}
