@@ -279,10 +279,8 @@ function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgro
 	};
 
 	socket.once('load old msgs', function(docs){
-		if(!$('.msgShout').length) {
-			for (var i = docs.length-1; i >= 0; i--) {
-				checkMsg("msg", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].uidto, docs[i].edt, docs[i].stylesheet, docs[i].type, docs[i]._id, docs[i].created, 'old');
-			}
+		for (var i = docs.length-1; i >= 0; i--) {
+			checkMsg("msg", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].uidto, docs[i].edt, docs[i].stylesheet, docs[i].type, docs[i]._id, docs[i].created, 'old');
 		}
 	});
 

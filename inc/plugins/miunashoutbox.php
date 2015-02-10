@@ -19,7 +19,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define('MSB_PLUGIN_VER', '1.0.4');
+define('MSB_PLUGIN_VER', '1.0.5');
 
 function miunashoutbox_info()
 {
@@ -1102,7 +1102,7 @@ function MSB_newthread()
 
 		$baseurl = $settings['miunashout_server'];
 		$timestamp = time();
-		$url = $baseurl."/socket.io/?EIO=3&transport=polling&t=".$timestamp;
+		$url_token = $baseurl."/socket.io/?EIO=3&transport=polling&t=".$timestamp;
 
 		$data = array(
 			"nick" => $name_link,
@@ -1114,7 +1114,7 @@ function MSB_newthread()
 			"type" => "system"
 		);
 
-		$gettoken = tokencall($url);
+		$gettoken = tokencall($url_token);
 		$token = json_decode(substr($gettoken, 5));
 
 		$msg = '["message",'.json_encode($data).']';
@@ -1143,7 +1143,7 @@ function MSB_newpost()
 
 		$baseurl = $settings['miunashout_server'];
 		$timestamp = time();
-		$url = $baseurl."/socket.io/?EIO=3&transport=polling&t=".$timestamp;
+		$url_token = $baseurl."/socket.io/?EIO=3&transport=polling&t=".$timestamp;
 
 		$data = array(
 			"nick" => $name_link,
@@ -1155,7 +1155,7 @@ function MSB_newpost()
 			"type" => "system"
 		);
 
-		$gettoken = tokencall($url);
+		$gettoken = tokencall($url_token);
 		$token = json_decode(substr($gettoken, 5));
 
 		$msg = '["message",'.json_encode($data).']';
