@@ -60,7 +60,7 @@ function regexmiuna(message) {
 	}
 
 	for (var val in miuna_smilies) {
-		message = message.replace(new RegExp(val, "gi"), miuna_smilies[val]);
+		message = message.replace(new RegExp(''+val+'(?!\\S)', "gi"), miuna_smilies[val]);
 	}
 	return message;
 }
