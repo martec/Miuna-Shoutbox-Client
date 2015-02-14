@@ -944,7 +944,9 @@ function miuna_bbcode_func($smilies = true)
 
 					$find = htmlspecialchars_uni($smilie['find']);
 					$image = htmlspecialchars_uni($smilie['image']);
-					$smilies_json .= '"'.$find.' ": "<img src=\"'.$mybb->asset_url.'/'.$image.'\" />",';
+					$findfirstquote = preg_quote($find);
+					$findsecoundquote = preg_quote($findfirstquote);
+					$smilies_json .= '"'.$findsecoundquote.'": "<img src=\"'.$mybb->asset_url.'/'.$image.'\" />",';
 					if($i < $mybb->settings['smilieinsertertot'])
 					{
 						$dropdownsmilies .= '"'.$find.'": "'.$mybb->asset_url.'/'.$image.'",';
@@ -961,10 +963,6 @@ function miuna_bbcode_func($smilies = true)
 					}
 					++$i;
 				}
-					$smilies_json = preg_replace("#\(#i", "\\\\\\\\\(", $smilies_json);
-					$smilies_json = preg_replace("#\)#i", "\\\\\\\\\)", $smilies_json);
-					$smilies_json = preg_replace("#\|#i", "\\\\\\\\\|", $smilies_json);
-					$smilies_json = preg_replace("#\?#i", "\\\\\\\\\?", $smilies_json);
 			}
 		}
 
