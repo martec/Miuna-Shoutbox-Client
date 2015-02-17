@@ -33,7 +33,6 @@ function miunashoutbox_info()
 		"author"		=> "martec",
 		"authorsite"	=> "",
 		"version"		=> MSB_PLUGIN_VER,
-		"guid"			=> "",
 		"compatibility" => "18*"
 	);
 }
@@ -65,7 +64,7 @@ function miunashoutbox_install()
 		'name' => 'miunashout_height',
 		'title' => $lang->miunashoutbox_heigh_title,
 		'description' => $lang->miunashoutbox_heigh_desc,
-		'optionscode' => 'text',
+		'optionscode' => 'numeric',
 		'value' => '200',
 		'disporder' => 2,
 		'gid'		=> $groupid
@@ -74,7 +73,7 @@ function miunashoutbox_install()
 		'name' => 'miunashout_num_shouts',
 		'title' => $lang->miunashoutbox_shoutlimit_title,
 		'description' => $lang->miunashoutbox_shoutlimit_desc,
-		'optionscode' => 'text',
+		'optionscode' => 'numeric',
 		'value' => '25',
 		'disporder' => 3,
 		'gid'		=> $groupid
@@ -83,7 +82,7 @@ function miunashoutbox_install()
 		'name' => 'miunashout_lognum_shouts',
 		'title' => $lang->miunashoutbox_logshoutlimit_title,
 		'description' => $lang->miunashoutbox_logshoutlimit_desc,
-		'optionscode' => 'text',
+		'optionscode' => 'numeric',
 		'value' => '50',
 		'disporder' => 4,
 		'gid'		=> $groupid
@@ -92,7 +91,7 @@ function miunashoutbox_install()
 		'name' => 'miunashout_grups_acc',
 		'title' => $lang->miunashoutbox_nogrp_title,
 		'description' => $lang->miunashoutbox_nogrp_desc,
-		'optionscode' => 'text',
+		'optionscode' => 'groupselect',
 		'value' => '7',
 		'disporder' => 5,
 		'gid'		=> $groupid
@@ -101,7 +100,7 @@ function miunashoutbox_install()
 		'name' => 'miunashout_mod_grups',
 		'title' => $lang->miunashoutbox_mod_title,
 		'description' => $lang->miunashoutbox_mod_desc,
-		'optionscode' => 'text',
+		'optionscode' => 'groupselect',
 		'value' => '3,4,6',
 		'disporder' => 6,
 		'gid'		=> $groupid
@@ -164,7 +163,7 @@ function miunashoutbox_install()
 		'name' => 'miunashout_antiflood',
 		'title' => $lang->miunashoutbox_antiflood_title,
 		'description' => $lang->miunashoutbox_antiflood_desc,
-		'optionscode' => 'text',
+		'optionscode' => 'numeric',
 		'value' => '0',
 		'disporder' => 13,
 		'gid'		=> $groupid
