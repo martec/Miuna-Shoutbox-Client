@@ -23,6 +23,18 @@ function escapeHtml(text) {
   return text.replace(/[&<>"']/g, function(m) { return map[m]; });
 }
 
+function revescapeHtml(text) {
+  var map = {
+	'&amp;': '&',
+	'&lt;': '<',
+	'&gt;': '>',
+	'&quot;': '"',
+	'&#039;': "'"
+  };
+
+  return text.replace(/(&amp;|&lt;|&gt;|&quot;|&#039;)/g, function(m) { return map[m]; });
+}
+
 function regexment(text,nick) {
   var mentregex = text.match(/(?:^|\s)@&quot;([^<]+?)&quot;|(?:^|\s)@&#039;([^<]+?)&#039;|(?:^|\s)@`([^<]+?)`|(?:^|\s)@(?:([^"<>\.,;!?()\[\]{}&\'\s\\]{3,}))/gmi);
   if (mentregex) {
@@ -884,6 +896,7 @@ function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgro
 	($.fn.on || $.fn.live).call($(document), 'dblclick', '.msgShout', function (e) {
 		var id = $(this).attr('data-ided');
 		function edtfunc(msg, uid){
+			msg = revescapeHtml(msg);
 			if (uid == mybbuid || $.inArray(parseInt(mybbusergroup), miunamodgroups.split(',').map(function(modgrup){return Number(modgrup);}))!=-1) {
 				$('#shout_text').attr( {"data-type": "edit", "data-id": id} );
 				$('#shout_text').sceditor('instance').val(msg);
