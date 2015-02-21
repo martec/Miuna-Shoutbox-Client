@@ -77,8 +77,8 @@ function regexmiuna(message) {
 	return message;
 }
 
-function imgconv(key) {
-	$("div."+key+", [data-idpos="+key+"]").find( "a[href*='.jpg'], a[href*='.gif'], a[href*='.png']" ).each(function(e) {
+function imgconv(type) {
+	$("div."+type+", [data-idpos="+type+"]").find( "a[href*='.jpg'], a[href*='.gif'], a[href*='.png']" ).each(function(e) {
 		var imgsrc = $(this).attr('href');
 		if (!$(this).children("img").length) {
 			$(this).empty().append( '<img src="'+ imgsrc +'" style="max-width:80px; max-height:80px" />' );
@@ -86,14 +86,33 @@ function imgconv(key) {
 	});
 }
 
-function scrollmiuna(key,direction,area,ckold) {
-	if (direction!='top' && (($(""+area+"").scrollTop() + $(""+area+"")[0].offsetHeight) > ($(""+area+"")[0].scrollHeight - 90) || ckold=='old')) {
+function imgconvlog() {
+	$("div.msglog").find( "a[href*='.jpg'], a[href*='.gif'], a[href*='.png']" ).each(function(e) {
+		var imgsrc = $(this).attr('href');
+		if (!$(this).children("img").length) {
+			$(this).empty().append( '<img src="'+ imgsrc +'" style="max-width:80px; max-height:80px" />' );
+		}
+	});
+}
+
+function scrollmiuna(key,area,ckold) {
+	if ((($(""+area+"").scrollTop() + $(""+area+"").outerHeight()) > ($(""+area+"")[0].scrollHeight - 90)) || ckold=='old') {
+		$(""+area+"").animate({scrollTop: ($(""+area+"")[0].scrollHeight)}, 10);
 		$("div."+key+" img, [data-idpos="+key+"] img").one("load", function() {
 			$(""+area+"").animate({scrollTop: ($(""+area+"")[0].scrollHeight)}, 10);
 		}).each(function() {
 			if(this.complete) $(this).load();
 		});
 	}
+}
+
+function scrollmiunalog() {
+	$(".logstyle").animate({scrollTop: ($(".logstyle")[0].scrollHeight)}, 10);
+	$("div.msglog img").one("load", function() {
+		$(".logstyle").animate({scrollTop: ($(".logstyle")[0].scrollHeight)}, 10);
+	}).each(function() {
+		if(this.complete) $(this).load();
+	});
 }
 
 function autocleaner(area,count,numshouts,direction) {
@@ -116,7 +135,7 @@ function autocleaner(area,count,numshouts,direction) {
 	},200);
 }
 
-function shoutgenerator(reqtype,key,uidp,uid,hour,username,nickto,stylesheet,message,type,ckold,direction,numshouts) {
+function shoutgenerator(reqtype,key,uidp,uid,hour,username,nickto,stylesheet,message,type,ckold,direction,numshouts,cur) {
 	var preapp = lanpm = pmspan = area = scrollarea = count = '';
 	if(direction=='top'){
 		preapp = 'prepend';
@@ -157,19 +176,25 @@ function shoutgenerator(reqtype,key,uidp,uid,hour,username,nickto,stylesheet,mes
 		pmspan = "<span class='pm_inf'>["+lanpm+" "+nickto+"] </span>";
 	}
 	if(type == 'shout' || type == 'pmshout') {
-		 $(""+area+"")[preapp]("<div class='msgShout "+count+" "+key+"' data-uid="+uid+" data-ided="+key+"><span class='time_msgShout'><span>[</span>"+hour+"<span>]</span></span>"+pmspan+"<span class='username_msgShout'>"+username+"</span>:<span class='content_msgShout' style='"+stylesheet+"'>"+message+"</span></div>");
-		  if (direction!='top' && (($(""+scrollarea+"").scrollTop() + $(""+scrollarea+"")[0].offsetHeight) > ($(""+scrollarea+"")[0].scrollHeight - 90) || ckold=='old')) {
-				$(""+scrollarea+"").animate({scrollTop: ($(""+scrollarea+"")[0].scrollHeight)}, 10);
-		  }
+		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+key+"' data-uid="+uid+" data-ided="+key+"><span class='time_msgShout'><span>[</span>"+hour+"<span>]</span></span>"+pmspan+"<span class='username_msgShout'>"+username+"</span>:<span class='content_msgShout' style='"+stylesheet+"'>"+message+"</span></div>");
 	}
 	if(type == 'system' || type == 'pmsystem') {
-			$(""+area+"")[preapp]("<div class='msgShout "+count+" "+key+"' data-uid="+uid+" data-ided="+key+">"+pmspan+"*<span class='username_msgShout'>"+username+"</span><span class='content_msgShout' style='"+stylesheet+"'>"+message+"</span>*</div>");
-			 if (direction!='top' && (($(""+scrollarea+"").scrollTop() + $(""+scrollarea+"")[0].offsetHeight) > ($(""+scrollarea+"")[0].scrollHeight - 90) || ckold=='old')) {
-				$(""+scrollarea+"").animate({scrollTop: ($(""+scrollarea+"")[0].scrollHeight)}, 10);
-		  }
+		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+key+"' data-uid="+uid+" data-ided="+key+">"+pmspan+"*<span class='username_msgShout'>"+username+"</span><span class='content_msgShout' style='"+stylesheet+"'>"+message+"</span>*</div>");
 	}
-	imgconv(key);
-	scrollmiuna(key,direction,scrollarea,ckold);
+	if(cur==0) {
+		if (reqtype == 'lognext' || reqtype == 'logback') {
+			if(direction!='top') {
+				imgconvlog();				
+				scrollmiunalog();
+			}
+		}
+		else {
+			imgconv(count);
+			if(direction!='top') {
+				scrollmiuna(key,scrollarea,ckold);
+			}
+		}
+	}
 }
 
 function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgroups) {
@@ -419,14 +444,14 @@ function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgro
 		}
 	}
 
-	function displayMsg(reqtype, message, username, uidp, uid, nickto, edt, stylesheet, type, key, created, ckold){
+	function displayMsg(reqtype, message, username, uidp, uid, nickto, edt, stylesheet, type, key, created, ckold, cur){
 		var hour = moment(created).utcOffset(parseInt(zoneset)).format(zoneformt);
 		message = regexmiuna(message),
 		nums = numshouts;
-		if (reqtype=='log') {
+		if (reqtype=='lognext' || reqtype=='logback') {
 			nums = mpp;
 		}
-		shoutgenerator(reqtype,key,uidp,uid,hour,username,nickto,stylesheet,message,type,ckold,direction,nums);
+		shoutgenerator(reqtype,key,uidp,uid,hour,username,nickto,stylesheet,message,type,ckold,direction,nums,cur);
 		if (uidlist[uid]==1) {
 			$("[data-uid="+uid+"]").find(".time_msgShout span").css("color",on_color);
 		}
@@ -443,21 +468,21 @@ function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgro
 		}
 	};
 
-	function checkMsg(req, msg, nick, nickto, uid, uidto, edt, stylesheet, type, _id, created, ckold) {
+	function checkMsg(req, msg, nick, nickto, uid, uidto, edt, stylesheet, type, _id, created, ckold, cur) {
 		var mtype = 'shout';
 		if (req=='lognext' || req=='logback') {
 			mtype = req;
 		}
 		if (nickto==0) {
-			displayMsg(mtype, msg, nick, uid, uid, nickto, edt, stylesheet, type, _id, created, ckold);
+			displayMsg(mtype, msg, nick, uid, uid, nickto, edt, stylesheet, type, _id, created, ckold, cur);
 		}
 		else {
 			if (uid==mybbuid) {
 				if (req=="msg" || req=='lognext' || req=='logback') {
-					displayMsg(mtype, msg, nick, uidto, uid, nickto, edt, stylesheet, type, _id, created, ckold);
+					displayMsg(mtype, msg, nick, uidto, uid, nickto, edt, stylesheet, type, _id, created, ckold, cur);
 				}
 				if ($("[data-uidpm="+uidto+"]").length && req!='lognext' && req!='logback') {
-					displayMsg("pm", msg, nick, uidto, uid, nickto, edt, stylesheet, type, _id, created, ckold);
+					displayMsg("pm", msg, nick, uidto, uid, nickto, edt, stylesheet, type, _id, created, ckold, cur);
 				}
 				else {
 					return;
@@ -465,10 +490,10 @@ function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgro
 			}
 			else if (uidto==mybbuid) {
 				if (req=="msg" || req=='lognext' || req=='logback') {
-					displayMsg(mtype, msg, nick, uid, uid, nickto, edt, stylesheet, type, _id, created, ckold);
+					displayMsg(mtype, msg, nick, uid, uid, nickto, edt, stylesheet, type, _id, created, ckold, cur);
 				}
 				if($("[data-uidpm="+uid+"]").length && req!='lognext' && req!='logback') {
-					displayMsg("pm", msg, nick, uid, uid, nickto, edt, stylesheet, type, _id, created, ckold);
+					displayMsg("pm", msg, nick, uid, uid, nickto, edt, stylesheet, type, _id, created, ckold, cur);
 				}
 				else {
 					return;
@@ -482,12 +507,12 @@ function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgro
 
 	socket.once('load old msgs', function(docs){
 		for (var i = docs.length-1; i >= 0; i--) {
-			checkMsg("msg", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].uidto, docs[i].edt, docs[i].stylesheet, docs[i].type, docs[i]._id, docs[i].created, 'old');
+			checkMsg("msg", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].uidto, docs[i].edt, docs[i].stylesheet, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 		}
 	});
 
 	socket.on('message', function(data){
-		checkMsg("msg", data.msg, data.nick, data.nickto, data.uid, data.uidto, data.edt, data.stylesheet, data.type, data._id, data.created, 'new');
+		checkMsg("msg", data.msg, data.nick, data.nickto, data.uid, data.uidto, data.edt, data.stylesheet, data.type, data._id, data.created, 'new', 0);
 	});
 
 	function updmsg(message, key){
@@ -536,7 +561,7 @@ function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgro
 		socket.emit('logfpgmsg', {mpp:mpp, uid:mybbuid});
 		socket.once('logfpgmsg', function(docs){
 			for (var i = docs.length-1; i >= 0; i--) {
-				checkMsg('lognext', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].uidto, docs[i].edt, docs[i].stylesheet, docs[i].type, docs[i]._id, docs[i].created, 'old');
+				checkMsg('lognext', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].uidto, docs[i].edt, docs[i].stylesheet, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 			}
 		});
 	}
@@ -605,7 +630,7 @@ function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgro
 			socket.emit('logmsgnext', {id:prevpagefirstid, mpp:mpp, uid:mybbuid});
 			socket.once('logmsgnext', function (docs) {
 				for (var i = docs.length-1; i >= 0; i--) {
-					checkMsg('lognext', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].uidto, docs[i].edt, docs[i].stylesheet, docs[i].type, docs[i]._id, docs[i].created, 'old');
+					checkMsg('lognext', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].uidto, docs[i].edt, docs[i].stylesheet, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 				}
 			});
 		}
@@ -638,7 +663,7 @@ function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgro
 			socket.emit('logmsgback', {id:prevpagelastid, mpp:mpp, uid:mybbuid});
 			socket.once('logmsgback', function (docs) {
 				for (var i = docs.length-1; i >= 0; i--) {
-					checkMsg('logback', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].uidto, docs[i].edt, docs[i].stylesheet, docs[i].type, docs[i]._id, docs[i].created, 'old');
+					checkMsg('logback', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].uidto, docs[i].edt, docs[i].stylesheet, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 				}
 			});
 		}
@@ -655,7 +680,7 @@ function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgro
 				socket.emit('getoldpmmsg', {ns: numshouts, suid1:''+parseInt(mybbuid)+','+uid+'', suid2:''+uid+','+parseInt(mybbuid)+''});
 				socket.once('load old pm msgs', function(docs){
 					for (var i = docs.length-1; i >= 0; i--) {
-						checkMsg("pm", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].uidto, docs[i].edt, docs[i].stylesheet, docs[i].type, docs[i]._id, docs[i].created, 'old');
+						checkMsg("pm", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].uidto, docs[i].edt, docs[i].stylesheet, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 					}
 				});
 			}

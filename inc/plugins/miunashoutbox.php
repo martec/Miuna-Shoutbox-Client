@@ -19,7 +19,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define('MSB_PLUGIN_VER', '1.0.7');
+define('MSB_PLUGIN_VER', '1.0.8');
 
 function miunashoutbox_info()
 {
