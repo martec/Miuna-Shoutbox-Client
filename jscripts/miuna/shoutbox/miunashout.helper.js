@@ -183,8 +183,8 @@ function shoutgenerator(reqtype,key,uidp,uid,hour,username,nickto,stylesheet,mes
 	}
 	if(cur==0) {
 		if (reqtype == 'lognext' || reqtype == 'logback') {
+			imgconvlog();
 			if(direction!='top') {
-				imgconvlog();				
 				scrollmiunalog();
 			}
 		}
