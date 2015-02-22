@@ -95,10 +95,14 @@ function imgconvlog() {
 	});
 }
 
-function scrollmiuna(key,area,ckold) {
+function scrollmiuna(key,area,ckold,imarea) {
 	if ((($(""+area+"").scrollTop() + $(""+area+"").outerHeight()) > ($(""+area+"")[0].scrollHeight - 90)) || ckold=='old') {
+		imgarea = key;
+		if (ckold=='old') {
+			imgarea = imarea;
+		}
 		$(""+area+"").animate({scrollTop: ($(""+area+"")[0].scrollHeight)}, 10);
-		$("div."+key+" img, [data-idpos="+key+"] img").one("load", function() {
+		$("div."+imgarea+" img, [data-idpos="+key+"] img").one("load", function() {
 			$(""+area+"").animate({scrollTop: ($(""+area+"")[0].scrollHeight)}, 10);
 		}).each(function() {
 			if(this.complete) $(this).load();
@@ -191,7 +195,7 @@ function shoutgenerator(reqtype,key,uidp,uid,hour,username,nickto,stylesheet,mes
 		else {
 			imgconv(count);
 			if(direction!='top') {
-				scrollmiuna(key,scrollarea,ckold);
+				scrollmiuna(key,scrollarea,ckold,count);
 			}
 		}
 	}
