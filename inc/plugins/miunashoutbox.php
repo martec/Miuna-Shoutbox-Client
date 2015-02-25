@@ -19,7 +19,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define('MSB_PLUGIN_VER', '1.0.8');
+define('MSB_PLUGIN_VER', '1.0.9');
 
 function miunashoutbox_info()
 {
@@ -651,7 +651,7 @@ miuna_smilies = {
 						<strong>{\$lang->miunashoutbox_bold}?</strong>
 					</td>
 					<td class=\"trow1\" width=\"60%\">
-						<select id={\$lang->miunashoutbox_bold}>
+						<select id=\"Bold\">
 							<option value=\"0\">{\$lang->miunashoutbox_no}</option>
 							<option value=\"1\">{\$lang->miunashoutbox_yes}</option>
 						</select>
@@ -662,7 +662,7 @@ miuna_smilies = {
 						<strong>{\$lang->miunashoutbox_italic}?</strong>
 					</td>
 					<td class=\"trow1\" width=\"60%\">
-						<select id={\$lang->miunashoutbox_italic}>
+						<select id=\"Italic\">
 							<option value=\"0\">{\$lang->miunashoutbox_no}</option>
 							<option value=\"1\">{\$lang->miunashoutbox_yes}</option>
 						</select>
@@ -673,7 +673,7 @@ miuna_smilies = {
 						<strong>{\$lang->miunashoutbox_underline}?</strong>
 					</td>
 					<td class=\"trow1\" width=\"60%\">
-						<select id={\$lang->miunashoutbox_underline}>
+						<select id=\"Underline\">
 							<option value=\"0\">{\$lang->miunashoutbox_no}</option>
 							<option value=\"1\">{\$lang->miunashoutbox_yes}</option>
 						</select>
@@ -684,7 +684,7 @@ miuna_smilies = {
 						<strong>{\$lang->miunashoutbox_strike}?</strong>
 					</td>
 					<td class=\"trow1\" width=\"60%\">
-						<select id={\$lang->miunashoutbox_strike}>
+						<select id=\"Strike\">
 							<option value=\"0\">{\$lang->miunashoutbox_no}</option>
 							<option value=\"1\">{\$lang->miunashoutbox_yes}</option>
 						</select>
