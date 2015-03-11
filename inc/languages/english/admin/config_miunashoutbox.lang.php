@@ -64,6 +64,8 @@ $l['miunashoutbox_shoutstart_title'] = 'Display direction of shouts';
 $l['miunashoutbox_shoutstart_desc'] = 'Choice display direction.';
 $l['miunashoutbox_shoutstart_opt'] = 'top=Top
 bottom=Bottom';
+$l['miunashoutbox_deststyl_title'] = 'Desactive style select?';
+$l['miunashoutbox_deststyl_desc'] = 'Set if you want desactive style select. If you select yes, Miuna Shoutbox will use same style of new thread and new post shout.';
 $l['miunashoutbox_newpost_lang'] = 'posted in thread {1}';
 $l['miunashoutbox_newthread_lang'] = 'posted new thread {1}';
 ?>

@@ -211,9 +211,14 @@ function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgro
 	pmdata = '',
 	connected = false;
 
-	sb_sty_ft = JSON.parse(localStorage.getItem('sb_st_ft'));
-	if (sb_sty_ft) {
-		usercss = escapeHtml(sb_sty_ft['ft_sty']);
+	if (parseInt(destyle)) {
+		usercss = defstyle;
+	}
+	else {
+		sb_sty_ft = JSON.parse(localStorage.getItem('sb_st_ft'));
+		if (sb_sty_ft) {
+			usercss = escapeHtml(sb_sty_ft['ft_sty']);
+		}
 	}
 
 	($.fn.on || $.fn.live).call($(document), 'click', '#update', function (e) {
@@ -878,7 +883,9 @@ function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgro
 			'<div style="background-image: url('+rootpath+'/images/config.png); opacity: 1; cursor: pointer;">'+opt_msglan+'</div>',
 		'</a>'
 	];
-	$(options.join('')).appendTo('.sceditor-group:last');
+	if (!parseInt(destyle)) {
+		$(options.join('')).appendTo('.sceditor-group:last');
+	}
 
 	($.fn.on || $.fn.live).call($(document), 'click', '#opt', function (e) {
 		$('body').append( '<div id="optpop" style="width: 330px; height:440px"><span id="loadconfarea"></span></div>' );

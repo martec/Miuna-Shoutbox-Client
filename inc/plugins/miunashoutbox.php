@@ -19,7 +19,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define('MSB_PLUGIN_VER', '1.0.9');
+define('MSB_PLUGIN_VER', '1.1.0');
 
 function miunashoutbox_info()
 {
@@ -268,6 +268,15 @@ function miunashoutbox_install()
 		'disporder' => 24,
 		'gid'		=> $groupid
 	);
+	$miunashout_setting[] = array(
+		'name' => 'miunashout_deststyl_select',
+		'title' => $lang->miunashoutbox_deststyl_title,
+		'description' => $lang->miunashoutbox_deststyl_desc,
+		'optionscode' => 'yesno',
+		'value' => 0,
+		'disporder' => 25,
+		'gid'		=> $groupid
+	);
 
 	$db->insert_query_multiple("settings", $miunashout_setting);
 	rebuild_settings();
@@ -303,7 +312,8 @@ function miunashoutbox_uninstall()
 		'miunashout_zone',
 		'miunashout_styles_font',
 		'miunashout_styles_size',
-		'miunashout_shouts_start'
+		'miunashout_shouts_start',
+		'miunashout_deststyl_select'
 	)");
 
 	$db->delete_query("settinggroups", "name = 'miunashoutbox'");
@@ -391,6 +401,8 @@ if (typeof io == 'undefined') {
 	edt_color = '{\$mybb->settings['miunashout_edt_backcolor']}',
 	floodtime = '{\$mybb->settings['miunashout_antiflood']}',
 	mpp = '{\$mybb->settings['miunashout_lognum_shouts']}',
+	destyle = '{\$mybb->settings['miunashout_deststyl_select']}',
+	defstyle = '{\$mybb->settings['miunashout_newpt_style']}',
 	socket = io.connect('{\$mybb->settings['miunashout_socketio']}');
 // -->
 </script>
@@ -790,7 +802,7 @@ function miuna_cache_template()
 	if (THIS_SCRIPT == 'index.php') {
 		$templatelist .= 'codebutmiuna,templateShoutBox,templateShoutBoxGuest';
 	}
-	if (THIS_SCRIPT == 'usercp.php') {
+	if (THIS_SCRIPT == 'usercp.php' && !$mybb->settings['miunashout_deststyl_select']) {
 		$templatelist .= 'usercp_miuna_config,usercp_nav_miuna,usercp_msdb_fontcolor,usercp_msdb_fontselect,usercp_msdb_fontselect_option,usercp_msdb_fontsizeselect,usercp_msdb_fontsizeselect_option';
 	}
 }
@@ -996,7 +1008,7 @@ function MiunaShout() {
 
 }
 
-if ($settings['miunashout_online']) {
+if ($settings['miunashout_online'] && !$settings['miunashout_deststyl_select']) {
 	$plugins->add_hook('usercp_start', 'MUSB_config');
 }
 function MUSB_config()
@@ -1045,7 +1057,7 @@ function MUSB_config()
 	}
 }
 
-if ($settings['miunashout_online']) {
+if ($settings['miunashout_online'] && !$settings['miunashout_deststyl_select']) {
 	$plugins->add_hook('usercp_menu', 'miuna_ucpmenu', 20);
 }
 function miuna_ucpmenu()
