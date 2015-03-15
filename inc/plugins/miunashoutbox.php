@@ -19,7 +19,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define('MSB_PLUGIN_VER', '1.1.0');
+define('MSB_PLUGIN_VER', '1.2.0');
 
 function miunashoutbox_info()
 {
@@ -277,6 +277,24 @@ function miunashoutbox_install()
 		'disporder' => 25,
 		'gid'		=> $groupid
 	);
+	$miunashout_setting[] = array(
+		'name' => 'miunashout_des_index',
+		'title' => $lang->miunashoutbox_destindx_title,
+		'description' => $lang->miunashoutbox_destindx_desc,
+		'optionscode' => 'yesno',
+		'value' => 0,
+		'disporder' => 26,
+		'gid'		=> $groupid
+	);
+	$miunashout_setting[] = array(
+		'name' => 'miunashout_act_port',
+		'title' => $lang->miunashoutbox_actport_title,
+		'description' => $lang->miunashoutbox_actport_desc,
+		'optionscode' => 'yesno',
+		'value' => 0,
+		'disporder' => 27,
+		'gid'		=> $groupid
+	);
 
 	$db->insert_query_multiple("settings", $miunashout_setting);
 	rebuild_settings();
@@ -313,7 +331,9 @@ function miunashoutbox_uninstall()
 		'miunashout_styles_font',
 		'miunashout_styles_size',
 		'miunashout_shouts_start',
-		'miunashout_deststyl_select'
+		'miunashout_deststyl_select',
+		'miunashout_des_index',
+		'miunashout_act_port'
 	)");
 
 	$db->delete_query("settinggroups", "name = 'miunashoutbox'");
@@ -773,6 +793,7 @@ miuna_smilies = {
 
 	//Adiciona templates para as posições da shoutbox
 	find_replace_templatesets("index", '#{\$forums}#', "{\$miunashout}\n{\$forums}");
+	find_replace_templatesets("portal", '#{\$announcements}#', "{\$miunashout}\n{\$announcements}");	
 }
 
 function miunashoutbox_deactivate()
@@ -785,6 +806,7 @@ function miunashoutbox_deactivate()
 
 	//Exclui templates para as posições da shoutbox
 	find_replace_templatesets("index", '#'.preg_quote('{$miunashout}').'#', '',0);
+	find_replace_templatesets("portal", '#'.preg_quote('{$miunashout}').'#', '',0);	
 }
 
 global $settings;
@@ -799,7 +821,10 @@ function miuna_cache_template()
 		$templatelist .= ',';
 	}
 
-	if (THIS_SCRIPT == 'index.php') {
+	if (THIS_SCRIPT == 'index.php' && !$mybb->settings['miunashout_des_index']) {
+		$templatelist .= 'codebutmiuna,templateShoutBox,templateShoutBoxGuest';
+	}
+	if (THIS_SCRIPT == 'portal.php' && $mybb->settings['miunashout_act_port']) {
 		$templatelist .= 'codebutmiuna,templateShoutBox,templateShoutBoxGuest';
 	}
 	if (THIS_SCRIPT == 'usercp.php' && !$mybb->settings['miunashout_deststyl_select']) {
@@ -986,8 +1011,11 @@ function miuna_bbcode_func($smilies = true)
 	return $miunabbcode;
 }
 
-if ($settings['miunashout_online']) {
+if ($settings['miunashout_online'] && !$settings['miunashout_des_index']) {
 	$plugins->add_hook('index_start', 'MiunaShout');
+}
+if ($settings['miunashout_online'] && $settings['miunashout_act_port']) {
+	$plugins->add_hook('portal_start', 'MiunaShout');
 }
 function MiunaShout() {
 
