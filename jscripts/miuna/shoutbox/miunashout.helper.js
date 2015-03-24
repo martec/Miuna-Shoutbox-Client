@@ -344,7 +344,7 @@ function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgro
 	});
 
 	$('#shout_text').sceditor('instance').bind('keypress', function(e) {
-		if(e.which == 13) {
+		if(!e.shiftKey && e.which == 13) {
 			if (timeafter >= floodtime) {
 				if (notban) {
 					stopflood();
@@ -354,6 +354,10 @@ function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgro
 					if ($('#shout_text').attr('data-type')=='shout') {
 
 						var msg = escapeHtml($('#shout_text').sceditor('instance').val());
+
+						if (parseInt(keepnewlines)) {
+							msg = msg.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2');
+						}
 
 						if(msg == '' || msg == null) {
 							$('#shout_text').sceditor('instance').val('').focus();
@@ -430,6 +434,7 @@ function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgro
 					setTimeout(function() {
 						$('#upd_alert').jGrowl(usr_banlang, { life: 500 });
 					},200);
+					e.preventDefault();
 					return;
 				}
 			}
@@ -441,6 +446,7 @@ function miunashout(mybbuid, mybbusername, name_link, mybbusergroup, miunamodgro
 					diftime = floodtime - timeafter;
 					$('#upd_alert').jGrowl(flood_msglan+diftime+secounds_msglan, { life: 500 });
 				},50);
+				e.preventDefault();
 				return;
 			}
 		}

@@ -50,7 +50,6 @@ function miunashoutbox_install()
 		'name'		=> 'miunashoutbox',
 		'title'		=> 'Miuna Shoutbox',
 		'description'	=> $lang->miunashoutbox_sett_desc,
-		'disporder'	=> $dorder,
 		'isdefault'	=> '0'
 	));
 
@@ -298,6 +297,15 @@ function miunashoutbox_install()
 		'disporder' => 27,
 		'gid'		=> $groupid
 	);
+	$miunashout_setting[] = array(
+		'name' => 'miunashout_keep_new_lines',
+		'title' => $lang->miunashoutbox_keep_new_lines_title,
+		'description' => $lang->miunashoutbox_keep_new_lines_desc,
+		'optionscode' => 'yesno',
+		'value' => 0,
+		'disporder' => 28,
+		'gid'		=> $groupid
+	);
 
 	$db->insert_query_multiple("settings", $miunashout_setting);
 	rebuild_settings();
@@ -336,7 +344,8 @@ function miunashoutbox_uninstall()
 		'miunashout_shouts_start',
 		'miunashout_deststyl_select',
 		'miunashout_des_index',
-		'miunashout_act_port'
+		'miunashout_act_port',
+		'miunashout_keep_new_lines'
 	)");
 
 	$db->delete_query("settinggroups", "name = 'miunashoutbox'");
@@ -423,6 +432,7 @@ if (typeof io == 'undefined') {
 	ment_borderstyle = '{\$mybb->settings['miunashout_ment_style']}',
 	edt_color = '{\$mybb->settings['miunashout_edt_backcolor']}',
 	floodtime = '{\$mybb->settings['miunashout_antiflood']}',
+	keepnewlines = '{\$mybb->settings['miunashout_keep_new_lines']}',
 	mpp = '{\$mybb->settings['miunashout_lognum_shouts']}',
 	destyle = '{\$mybb->settings['miunashout_deststyl_select']}',
 	defstyle = '{\$mybb->settings['miunashout_newpt_style']}',
@@ -473,13 +483,13 @@ opt_editor = {
 	$new_template_global['templateShoutBox'] = "<table border=\"0\" cellspacing=\"0\" cellpadding=\"4\" class=\"tborder tShout\">
 	<thead>
 		<tr>
-			<td class=\"thead theadShout\" colspan=\"1\">
-				<div class=\"expcolimage\"><img src=\"images/collapse.png\" id=\"edshout_img\" class=\"expander\" alt=\"[-]\" title=\"[-]\" /></div>
+			<td class=\"thead theadShout{\$expthead}\" colspan=\"1\">
+				<div class=\"expcolimage\"><img src=\"{\$theme['imgdir']}/{\$expcolimage}\" id=\"edshout_img\" class=\"expander\" alt=\"{\$expaltext}\" title=\"{\$expaltext}\" /></div>
 				<div><strong>{\$mybb->settings['miunashout_title']}</strong></div>
 			</td>
 		</tr>
 	</thead>
-	<tbody id=\"edshout_e\">
+	<tbody style=\"{\$expdisplay}\" id=\"edshout_e\">
 		<tr><td class=\"tcat\"><span class=\"smalltext\"><strong><span>{\$lang->miunashoutbox_notice_msg} : </span><span class='notshow'></span></strong></span></td></tr>
 		<tr>
 			<td class=\"trow2\">
@@ -500,13 +510,13 @@ opt_editor = {
 	$new_template_global['templateShoutBoxGuest'] = "<table border=\"0\" cellspacing=\"0\" cellpadding=\"4\" class=\"tborder tShout\">
 	<thead>
 		<tr>
-			<td class=\"thead theadShout\" colspan=\"1\">
-				<div class=\"expcolimage\"><img src=\"images/collapse.png\" id=\"edshout_img\" class=\"expander\" alt=\"[-]\" title=\"[-]\" /></div>
+			<td class=\"thead theadShout{\$expthead}\" colspan=\"1\">
+				<div class=\"expcolimage\"><img src=\"{\$theme['imgdir']}/{\$expcolimage}\" id=\"edshout_img\" class=\"expander\" alt=\"{\$expaltext}\" title=\"{\$expaltext}\" /></div>
 				<div><strong>{\$mybb->settings['miunashout_title']}</strong></div>
 			</td>
 		</tr>
 	</thead>
-	<tbody id=\"edshout_e\">
+	<tbody style=\"{\$expdisplay}\" id=\"edshout_e\">
 		<tr><td class=\"tcat\"><span class=\"smalltext\"><strong><span>{\$lang->miunashoutbox_notice_msg} : </span><span class='notshow'></span></strong></span></td></tr>
 		<tr>
 			<td class=\"trow2\">
@@ -576,6 +586,7 @@ if (typeof io == 'undefined') {
 	ment_borderstyle = '{\$mybb->settings['miunashout_ment_style']}',
 	edt_color = '{\$mybb->settings['miunashoutbox_edtcolor_desc']}',
 	floodtime = '{\$mybb->settings['miunashout_antiflood']}',
+	keepnewlines = '{\$mybb->settings['miunashout_keep_new_lines']}',
 	mpp = '{\$mybb->settings['miunashout_lognum_shouts']}',
 	socket = io.connect('{\$mybb->settings['miunashout_socketio']}');
 // -->
@@ -590,6 +601,18 @@ miuna_smilies = {
 });
 
 </script>";
+
+	$new_template_global['shoutbox'] = "<html>
+<head>
+<title>{\$mybb->settings['bbname']} - {\$mybb->settings['miunashout_title']}</title>
+{\$headerinclude}
+</head>
+<body>
+{\$header}
+{\$miunashout}
+{\$footer}
+</body>
+</html>";
 
 	foreach($new_template_global as $title => $template)
 	{
@@ -805,7 +828,7 @@ function miunashoutbox_deactivate()
 	global $db;
 	require MYBB_ROOT.'/inc/adminfunctions_templates.php';
 
-	$db->delete_query("templates", "title IN('codebutmiuna','templateShoutBox','templateShoutBoxGuest','usercp_miuna_config','usercp_msdb_fontcolor','usercp_msdb_fontselect','usercp_msdb_fontselect_option','usercp_msdb_fontsizeselect','usercp_msdb_fontsizeselect_option','usercp_nav_miuna')");
+	$db->delete_query("templates", "title IN('codebutmiuna','templateShoutBox','templateShoutBoxGuest', 'shoutbox','usercp_miuna_config','usercp_msdb_fontcolor','usercp_msdb_fontselect','usercp_msdb_fontselect_option','usercp_msdb_fontsizeselect','usercp_msdb_fontsizeselect_option','usercp_nav_miuna')");
 
 	//Exclui templates para as posições da shoutbox
 	find_replace_templatesets("index", '#'.preg_quote('{$miunashout}').'#', '',0);
@@ -1020,11 +1043,27 @@ if ($settings['miunashout_online'] && !$settings['miunashout_des_index']) {
 if ($settings['miunashout_online'] && $settings['miunashout_act_port']) {
 	$plugins->add_hook('portal_start', 'MiunaShout');
 }
+$plugins->add_hook('shoutbox_start', 'MiunaShout');
 function MiunaShout() {
 
-	global $settings, $mybb, $theme, $templates, $miunashout, $codebutmiuna, $lang;
+	global $settings, $mybb, $theme, $templates, $miunashout, $codebutmiuna, $lang, $collapsed;
 
 	$codebutmiuna = miuna_bbcode_func();
+
+	// Get collapsed state
+	if(isset($collapsed["edshout_c"]) && $collapsed["edshout_c"] == "display: show;")
+	{
+		$expcolimage = "collapse_collapsed.png";
+		$expdisplay = "display: none;";
+		$expthead = " thead_collapsed";
+		$expaltext = "[+]";
+	}
+	else
+	{
+		$expcolimage = "collapse.png";
+		$expthead = "";
+		$expaltext = "[-]";
+	}
 
 	if (!$lang->miunashoutbox) {
 		$lang->load('miunashoutbox');

@@ -72,4 +72,6 @@ $l['miunashoutbox_actport_title'] = 'Show Miuna Shoutbox in Portal page?';
 $l['miunashoutbox_actport_desc'] = 'Set here if you want show shoutbox in portal or not.';
 $l['miunashoutbox_newpost_lang'] = 'posted in thread {1}';
 $l['miunashoutbox_newthread_lang'] = 'posted new thread {1}';
+$l['miunashoutbox_keep_new_lines_title'] = 'Keep new lines in shouts ?';
+$l['miunashoutbox_keep_new_lines_desc'] = 'Set here if you want to keep new lines in shouts or delete them.';
 ?>
