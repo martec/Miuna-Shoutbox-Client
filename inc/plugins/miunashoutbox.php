@@ -43,6 +43,9 @@ function miunashoutbox_install()
 
 	$lang->load('config_miunashoutbox');
 
+	$query	= $db->simple_select("settinggroups", "COUNT(*) as rows");
+	$dorder = $db->fetch_field($query, 'rows') + 1;
+
 	$groupid = $db->insert_query('settinggroups', array(
 		'name'		=> 'miunashoutbox',
 		'title'		=> 'Miuna Shoutbox',
@@ -793,7 +796,7 @@ miuna_smilies = {
 
 	//Adiciona templates para as posições da shoutbox
 	find_replace_templatesets("index", '#{\$forums}#', "{\$miunashout}\n{\$forums}");
-	find_replace_templatesets("portal", '#{\$announcements}#', "{\$miunashout}\n{\$announcements}");	
+	find_replace_templatesets("portal", '#{\$announcements}#', "{\$miunashout}\n{\$announcements}");
 }
 
 function miunashoutbox_deactivate()
@@ -806,7 +809,7 @@ function miunashoutbox_deactivate()
 
 	//Exclui templates para as posições da shoutbox
 	find_replace_templatesets("index", '#'.preg_quote('{$miunashout}').'#', '',0);
-	find_replace_templatesets("portal", '#'.preg_quote('{$miunashout}').'#', '',0);	
+	find_replace_templatesets("portal", '#'.preg_quote('{$miunashout}').'#', '',0);
 }
 
 global $settings;
