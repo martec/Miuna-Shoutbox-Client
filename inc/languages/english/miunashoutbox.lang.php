@@ -12,18 +12,6 @@
  * @author Martec
  * @requires jQuery, Nodejs, Socket.io, Express, MongoDB, mongoose, debug and Mybb
  */
-$l['miunashoutbox_page_title'] = 'Miuna Shoutbox Style';
-$l['miunashoutbox_opt'] = 'Shoutbox Options';
-$l['miunashoutbox_style'] = 'Style';
-$l['miunashoutbox_title_for_type'] = 'Font type';
-$l['miunashoutbox_title_for_style'] = 'Font style';
-$l['miunashoutbox_bold'] = 'Bold';
-$l['miunashoutbox_italic'] = 'Italic';
-$l['miunashoutbox_underline'] = 'Underline';
-$l['miunashoutbox_strike'] = 'Strike';
-$l['miunashoutbox_font'] = 'Font';
-$l['miunashoutbox_fontsize'] = 'Size';
-$l['miunashoutbox_fontcolor'] = 'Color (value in HEX)';
 $l['miunashoutbox_yes'] = 'Yes';
 $l['miunashoutbox_no'] = 'No';
 $l['miunashoutbox_save'] = 'Save';
