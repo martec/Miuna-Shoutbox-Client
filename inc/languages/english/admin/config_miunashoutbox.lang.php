@@ -12,7 +12,7 @@
  * @author Martec
  * @requires jQuery, Nodejs, Socket.io, Express, MongoDB, mongoose, debug and Mybb
  */
-$l['miunashoutbox_plug_desc'] = 'Websocket Shout for Mybb.';
+$l['miunashoutbox_plug_desc'] = 'Websocket Shoutbox for Mybb.';
 $l['miunashoutbox_sett_desc'] = 'Settings for the Miuna Shoutbox.';
 $l['miunashoutbox_onoff_title'] = 'Enable Miuna Shoutbox?';
 $l['miunashoutbox_onoff_desc'] = 'Set here if you want enable or disable Miuna Shoutbox.';
@@ -26,14 +26,16 @@ $l['miunashoutbox_nogrp_title'] = 'Group without permission to use';
 $l['miunashoutbox_nogrp_desc'] = 'Set here group that does not has permission to use Miuna Shoutbox.';
 $l['miunashoutbox_mod_title'] = 'Mod Group';
 $l['miunashoutbox_mod_desc'] = 'Set here group with moderation privilege.';
-$l['miunashoutbox_guest_title'] = 'Read mode to guest';
-$l['miunashoutbox_guest_desc'] = 'Guest not has access to this shout. But you can enable read only mode to guest here.';
 $l['miunashoutbox_shout_title'] = 'Title of Miuna Shoutbox';
 $l['miunashoutbox_shout_desc'] = 'Set here title of shoutbox that will appear.';
 $l['miunashoutbox_server_title'] = 'Link to Miuna Shoutbox server';
 $l['miunashoutbox_server_desc'] = 'Set here your Miuna Shoutbox server address.';
 $l['miunashoutbox_socketio_title'] = 'Socket.io address';
-$l['miunashoutbox_socketio_desc'] = 'Set here adress that miuna shout box will connect.<br />For openshift users recommended "wss://xxxxxx.rhcloud.com:8443" (replacing xxxxxx with your account).';
+$l['miunashoutbox_socketio_desc'] = 'Set here adress that miuna shoutbox will connect.<br />For openshift users recommended "wss://xxxxxx.rhcloud.com:8443" (replacing xxxxxx with your account).';
+$l['miunashoutbox_serusr_title'] = 'Miuna Shoutbox Server Username';
+$l['miunashoutbox_serusr_desc'] = 'Provide Username of your Miuna Shoutbox Server.';
+$l['miunashoutbox_serpass_title'] = 'Miuna Shoutbox Server Passsword';
+$l['miunashoutbox_serpass_desc'] = 'Provide Password of your Miuna Shoutbox Server.';
 $l['miunashoutbox_imgur_title'] = 'Imgur';
 $l['miunashoutbox_imgur_desc'] = 'Set here API of imgur.';
 $l['miunashoutbox_dataf_title'] = 'Date Format';
@@ -68,10 +70,8 @@ $l['miunashoutbox_aavatar_title'] = 'Active avatar in Miuna Shoutbox?';
 $l['miunashoutbox_aavatar_desc'] = 'Set if you want active avatar in Miuna Shoutbox. If you select yes, Miuna Shoutbox will show avatar.';
 $l['miunashoutbox_acolor_title'] = 'Active color in Miuna Shoutbox?';
 $l['miunashoutbox_acolor_desc'] = 'Set if you want active color in Miuna Shoutbox. If you select yes, Miuna Shoutbox will give color option to users.';
-$l['miunashoutbox_mcolor_title'] = 'Color for user name to mod group of Miuna Shoutbox';
-$l['miunashoutbox_mcolor_desc'] = 'Set here color for user name to mod group of Miuna Shoutbox.';
-$l['miunashoutbox_ccolor_title'] = 'Color for user name to common user group of Miuna Shoutbox';
-$l['miunashoutbox_ccolor_desc'] = 'Set here color for user name to common user group of Miuna Shoutbox.';
+$l['miunashoutbox_dcln_title'] = 'Disable style in username?';
+$l['miunashoutbox_dcln_desc'] = 'Set if you want disable style in username. If you select yes, Miuna Shoutbox will disable style in username.';
 $l['miunashoutbox_destindx_title'] = 'Hide Miuna Shoutbox in Index page?';
 $l['miunashoutbox_destindx_desc'] = 'Set here if you want hide shoutbox in index or not.';
 $l['miunashoutbox_actport_title'] = 'Show Miuna Shoutbox in Portal page?';

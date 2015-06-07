@@ -180,14 +180,9 @@ function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,avatar,hour,username,n
 		scrollarea = ".logstyle";
 		count = "msglog";
 	}
-	if ($.inArray(parseInt(gid), msbvar.miunamodgroups.split(',').map(function(modgrupshout){return Number(modgrupshout);}))!=-1) {
-		coloruser = moduser_color;
-	}
-	else {
-		coloruser = commonuser_color;
-	}
-	if (coloruser.trim()) {
-		stylecluser = 'style="color:'+coloruser+'"'
+	if (parseInt(dcusrname)) {
+		username = username.replace(/(<([^>]+)>)/ig,"");
+		nickto = nickto.replace(/(<([^>]+)>)/ig,"");
 	}
 	if (parseInt(actavat)) {
 		if (avatar.trim()) {
@@ -205,13 +200,13 @@ function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,avatar,hour,username,n
 		}
 	}
 	if ((reqtype == 'shout' || reqtype == 'lognext' || reqtype == 'logback') && (type == 'pmshout' || type == 'pmsystem')) {
-		pmspan = "<span class='pm_inf'>["+lanpm+" "+escapeHtml(nickto)+"] </span>";
+		pmspan = "<span class='pm_inf'>["+lanpm+" "+nickto+"] </span>";
 	}
 	if(type == 'shout' || type == 'pmshout') {
-		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+"<span class='time_msgShout'><span>[</span>"+hour+"<span>]</span></span>"+pmspan+"<span class='username_msgShout' "+stylecluser+">"+escapeHtml(username)+"</span>:<span class='content_msgShout' "+shoutcolor+">"+message+"</span></div>");
+		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+"<span class='time_msgShout'><span>[</span>"+hour+"<span>]</span></span>"+pmspan+"<span class='username_msgShout'>"+username+"</span>:<span class='content_msgShout' "+shoutcolor+">"+message+"</span></div>");
 	}
 	if(type == 'system' || type == 'pmsystem') {
-		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+""+pmspan+"*<span class='username_msgShout' "+stylecluser+">"+escapeHtml(username)+"</span><span class='content_msgShout' "+shoutcolor+">"+message+"</span>*</div>");
+		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+""+pmspan+"*<span class='username_msgShout'>"+username+"</span><span class='content_msgShout' "+shoutcolor+">"+message+"</span>*</div>");
 	}
 	if(cur==0) {
 		if (reqtype == 'lognext' || reqtype == 'logback') {
@@ -233,11 +228,201 @@ function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,avatar,hour,username,n
 	}
 }
 
-function miunashout() {
+function reg_ajax(password) {
+	$.ajax({
+		type: 'POST',
+		data: {
+			password: password
+		},
+		url: 'xmlhttp.php?action=msb_registration&my_post_key='+my_post_key
+	}).done(function (result) {
+		if (JSON.parse(result).sucess) {
+			if(!$('#reg_alert').length) {
+				$('<div/>', { id: 'reg_alert', class: 'top-right' }).appendTo('body');
+			}
+			setTimeout(function() {
+				$('#reg_alert').jGrowl(tryloginlang, { life: 1500 });
+			},200);
+		}
+		if (JSON.parse(result).error) {
+			if (JSON.parse(result).error=='admpassinc') {
+				if(!$('#incadm_pass').length) {
+					$('<div/>', { id: 'incadm_pass', class: 'top-right' }).appendTo('body');
+				}
+				setTimeout(function() {
+					$('#incadm_pass').jGrowl(eregp, { life: 1500 });
+				},200);
+			}
+			if (JSON.parse(result).error=='admusarinc') {
+				if(!$('#incadm_user').length) {
+					$('<div/>', { id: 'incadm_user', class: 'top-right' }).appendTo('body');
+				}
+				setTimeout(function() {
+					$('#incadm_user').jGrowl(eregn, { life: 1500 });
+				},200);
+			}
+		}
+	});
+	return false;
+};
+
+function log_ajax(password) {
+	$.ajax({
+		type: 'POST',
+		data: {
+			uid: msbvar.mybbuid,
+			pass: password
+		},
+		url: msbaddress+'/login'
+	}).done(function (result) {
+		if (result.token) {
+			token = result.token;
+			var msb_token = JSON.parse(localStorage.getItem('msb_token'));
+			if (!msb_token) {
+				msb_token = {};
+			}
+			msb_token['token'] = token;
+			localStorage.setItem('msb_token', JSON.stringify(msb_token));
+			miunashout_connect();
+		}
+		if (result.error) {
+			if (result.error=='usrnotfound') {
+				if(!$('#usrnotfound_alert').length) {
+					$('<div/>', { id: 'usrnotfound_alert', class: 'top-right' }).appendTo('body');
+				}
+				setTimeout(function() {
+					$('#usrnotfound_alert').jGrowl(usrnotfoundlang, { life: 1500 });
+				},200);
+			}
+			if (result.error=='incpassword') {
+				if(!$('#incpass_alert').length) {
+					$('<div/>', { id: 'incpass_alert', class: 'top-right' }).appendTo('body');
+				}
+				setTimeout(function() {
+					$('#incpass_alert').jGrowl(inc_passlan, { life: 1500 });
+				},200);
+			}
+		}
+	});
+	return false;
+};
+
+function miunashout_reglog() {
+
+	function registfunc() {
+		heightwin = 120;
+		$('body').append( '<div class="regmod"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+passwordlang+':</strong></div></td></tr><td class="trow1"><input id="password" type="password" class="textbox" style="width:97%;" ></input></td></table></div><td><button id="sb_regist" style="margin:4px;">'+registlang+'</button></td></div>' );
+		$('.regmod').modal({ zIndex: 7 });
+	}
+
+	var register = [
+		'<a class="sceditor-button" title="'+registlang+'" id="register">',
+			'<div style="background-image: url('+rootpath+'/images/register.png); opacity: 1; cursor: pointer;">'+registlang+'</div>',
+		'</a>'
+	];
+	$(register.join('')).appendTo('.sceditor-group:last');
+
+	($.fn.on || $.fn.live).call($(document), 'click', '#register', function (e) {
+		e.preventDefault();
+		registfunc();
+	});
+
+	($.fn.on || $.fn.live).call($(document), 'click', '#sb_regist', function (e) {
+		e.preventDefault();
+		var password = $('#password').val();
+		reg_ajax(password);
+		$.modal.close();
+	});
+
+	function loginfunc() {
+		heightwin = 120;
+		$('body').append( '<div class="logmod"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+passwordlang+':</strong></div></td></tr><td class="trow1"><input id="password2" type="password" class="textbox" style="width:97%;" ></input></td></table></div><td><button id="sb_login" style="margin:4px;">'+loginlang+'</button></td></div>' );
+		$('.logmod').modal({ zIndex: 7 });
+	}
+
+	var login = [
+		'<a class="sceditor-button" title="'+loginlang+'" id="login">',
+			'<div style="background-image: url('+rootpath+'/images/login.png); opacity: 1; cursor: pointer;">'+loginlang+'</div>',
+		'</a>'
+	];
+	$(login.join('')).appendTo('.sceditor-group:last');
+
+	($.fn.on || $.fn.live).call($(document), 'click', '#login', function (e) {
+		e.preventDefault();
+		loginfunc();
+	});
+
+	($.fn.on || $.fn.live).call($(document), 'click', '#sb_login', function (e) {
+		e.preventDefault();
+		var password = $('#password2').val();
+		log_ajax(password);
+		$.modal.close();
+	});
+
+}
+
+function miunashout_connect() {
+
+	var msb_token = JSON.parse(localStorage.getItem('msb_token'));
+	if (!msb_token) {
+		if(!$('#reg_alert').length) {
+			$('<div/>', { id: 'reg_alert', class: 'top-right' }).appendTo('body');
+		}
+		setTimeout(function() {
+			$('#reg_alert').jGrowl(regloglang, { life: 1500 });
+		},200);
+	}
+	else {
+		socket = io.connect(socketaddress, { 'forceNew': true });
+			socket.on('authenticated', function () {
+				socket.emit('ckusr', {uid:msbvar.mybbuid});
+				socket.once('ckusr', function (data) {
+					if (data=='ok') {
+						regelem = document.getElementById("register");
+						regelem.parentElement.removeChild(regelem);
+						logelem = document.getElementById("login");
+						logelem.parentElement.removeChild(logelem);
+						miunashout(socket);
+					}
+					else if (data=='banned') {
+						socket.disconnect();
+						if(!$('#usr_ban').length) {
+							$('<div/>', { id: 'usr_ban', class: 'top-right' }).appendTo('body');
+						}
+						setTimeout(function() {
+							$('#usr_ban').jGrowl(usr_banlang, { life: 1500 });
+						},200);
+					}
+					else {
+						socket.disconnect();
+						if(!$('#inv_alert').length) {
+							$('<div/>', { id: 'inv_alert', class: 'top-right' }).appendTo('body');
+						}
+						setTimeout(function() {
+							$('#inv_alert').jGrowl(invtoklang, { life: 1500 });
+						},200);
+					}
+				});
+			})
+			.emit('authenticate', {token: msb_token['token']}) //send the jwt
+			.on("unauthorized", function(error) {
+				socket.disconnect();
+				if(!$('#inv_alert').length) {
+					$('<div/>', { id: 'inv_alert', class: 'top-right' }).appendTo('body');
+				}
+				setTimeout(function() {
+					$('#inv_alert').jGrowl(invtoklang, { life: 1500 });
+				},200);
+			});
+	}
+}
+
+function miunashout(socket) {
 	var notban = '1',
 	timeafter = msbvar.floodtime,
 	flooddetect,
 	colorshout = '',
+	shoutvol = '0',
 	usrlist = '',
 	uidlist = '',
 	pmdata = '',
@@ -252,6 +437,11 @@ function miunashout() {
 		}
 	}
 
+	sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
+	if (sb_sty) {
+		shoutvol = sb_sty['sound'];
+	}
+
 	function addParticipantsMessage (data) {
 		$('.actusr').text(''+usractlan+' '+Object.keys(data.usernames).length+'');
 	}
@@ -261,8 +451,7 @@ function miunashout() {
 		addParticipantsMessage(data);
 		usrlist = data.usernames;
 		uidlist = data.uidlist;
-		socket.emit('getoldmsg', {ns:numshouts, uid:msbvar.mybbuid});
-		socket.emit('updpml', {uid:msbvar.mybbuid, nicks:msbvar.mybbusername});
+		socket.emit('getoldmsg', {ns:numshouts});
 	});
 
 	socket.on('user joined', function (data) {
@@ -283,7 +472,7 @@ function miunashout() {
 		}
 	});
 
-	socket.emit('add user', {nick:msbvar.mybbusername, uidts:parseInt(msbvar.mybbuid)});
+	socket.emit('add user', function (data) {});
 
 	socket.emit('getnot', function (data) {});
 	socket.once('getnot', function (data) {
@@ -292,13 +481,28 @@ function miunashout() {
 		}
 	});
 
-	socket.emit('getbanl', function (data) {});
-	socket.once('getbanl', function (data) {
+	socket.on('ban', function (data) {
 		if (data) {
-			var listban = data.ban;
-			if ($.inArray(parseInt(msbvar.mybbuid), listban.split(',').map(function(listban){return Number(listban);}))!=-1) {
-				notban = 0;
+			socket.disconnect();
+			notban = 0;
+			if(!$('#upd_alert').length) {
+				$('<div/>', { id: 'upd_alert', class: 'top-right' }).appendTo('body');
 			}
+			setTimeout(function() {
+				$('#upd_alert').jGrowl(usr_banlang, { life: 1500 });
+			},200);
+		}
+	});
+
+	socket.on('abuse', function (data) {
+		if (data) {
+			socket.disconnect();
+			if(!$('#abuse_alert').length) {
+				$('<div/>', { id: 'abuse_alert', class: 'top-right' }).appendTo('body');
+			}
+			setTimeout(function() {
+				$('#abuse_alert').jGrowl(usr_abulang, { life: 1500 });
+			},200);
 		}
 	});
 
@@ -311,23 +515,8 @@ function miunashout() {
 		}
 	});
 
-	socket.on('updbanl', function (data) {
-		if (data) {
-			var listban = data.ban;
-			if ($.inArray(parseInt(msbvar.mybbuid), listban.split(',').map(function(listban){return Number(listban);}))!=-1) {
-				notban = 0;
-			}
-			else {
-				notban = 1;
-			}
-		}
-		else {
-			notban = 1;
-		}
-	});
-
 	$('#shout_text').sceditor('instance').bind('keypress', function(e) {
-		if(e.which == 13) {
+		if(e.originalEvent.which == 13) {
 			if (timeafter >= msbvar.floodtime) {
 				if (notban) {
 					stopflood();
@@ -337,7 +526,7 @@ function miunashout() {
 					if ($('#shout_text').attr('data-type')=='shout') {
 
 						var msg = escapeHtml($('#shout_text').sceditor('instance').val());
-						
+
 						if (parseInt(msbvar.msblc) > 0) {
 							msg = msg.slice(0, parseInt(msbvar.msblc));
 						}
@@ -349,10 +538,10 @@ function miunashout() {
 						else {
 							$('#shout_text').sceditor('instance').val('').focus();
 							if ( /^\/me[\s]+(.*)$/.test(msg) ) {
-								socket.emit('message', {nick:msbvar.mybbusername, msg:msg.slice(4), nickto:'0', uid:parseInt(msbvar.mybbuid), gid:parseInt(msbvar.mybbusergroup), colorsht: colorshout, avatar:msbvar.mybbavatar, uidto:0, suid:''+parseInt(msbvar.mybbuid)+',0', type: 'system'});
+								socket.emit('message', {msg:msg.slice(4), nickto:'0', colorsht: colorshout, uidto:0, type: 'system'});
 							}
 							else {
-								socket.emit('message', {nick:msbvar.mybbusername, msg:msg, nickto:'0', uid:parseInt(msbvar.mybbuid), uidto:0, gid:parseInt(msbvar.mybbusergroup), colorsht: colorshout, avatar:msbvar.mybbavatar, suid:''+parseInt(msbvar.mybbuid)+',0', type: 'shout'});
+								socket.emit('message', {msg:msg, nickto:'0', uidto:0, colorsht: colorshout, type: 'shout'});
 							}
 							return false;
 						}
@@ -360,7 +549,7 @@ function miunashout() {
 					else if ($('#shout_text').attr('data-type')=='pm') {
 						var msg = escapeHtml($('#shout_text').sceditor('instance').val()),
 						uid_to = parseInt($('#shout_text').attr('data-tbuid')),
-						nick_to = escapeHtml($('#shout_text').attr('data-nicktopm'));
+						nick_to = $('#shout_text').attr('data-nicktopm');
 
 						if(msg == '' || msg == null){
 							$('#shout_text').sceditor('instance').val('').focus();
@@ -370,10 +559,10 @@ function miunashout() {
 							$('#shout_text').sceditor('instance').val('').focus();
 
 							if ( /^\/me[\s]+(.*)$/.test(msg) ) {
-								socket.emit('message', {nick:msbvar.mybbusername, msg:msg.slice(4), nickto:nick_to, uid:parseInt(msbvar.mybbuid), gid:parseInt(msbvar.mybbusergroup), colorsht: colorshout, avatar:msbvar.mybbavatar, uidto:uid_to, suid:''+parseInt(msbvar.mybbuid)+','+uid_to+'', type: 'pmsystem'});
+								socket.emit('message', {msg:msg.slice(4), nickto:nick_to, colorsht: colorshout, uidto:uid_to, type: 'pmsystem'});
 							}
 							else {
-								socket.emit('message', {nick:msbvar.mybbusername, msg:msg, nickto:nick_to, uid:parseInt(msbvar.mybbuid), gid:parseInt(msbvar.mybbusergroup), colorsht: colorshout, avatar:msbvar.mybbavatar, uidto:uid_to, suid:''+parseInt(msbvar.mybbuid)+','+uid_to+'', type: 'pmshout'});
+								socket.emit('message', {msg:msg, nickto:nick_to, colorsht: colorshout, uidto:uid_to, type: 'pmshout'});
 							}
 							return false;
 						}
@@ -416,10 +605,10 @@ function miunashout() {
 				else {
 					$('#shout_text').sceditor('instance').val('').focus();
 					if(!$('#upd_alert').length) {
-						$('<div/>', { id: 'upd_alert', class: 'bottom-right' }).appendTo('body');
+						$('<div/>', { id: 'upd_alert', class: 'top-right' }).appendTo('body');
 					}
 					setTimeout(function() {
-						$('#upd_alert').jGrowl(usr_banlang, { life: 500 });
+						$('#upd_alert').jGrowl(usr_banlang, { life: 1500 });
 					},200);
 					e.preventDefault();
 					return;
@@ -451,8 +640,9 @@ function miunashout() {
 		message = regexmiuna(escapeHtml(revescapeHtml(message))),
 		nums = numshouts;
 		if (reqtype=='lognext' || reqtype=='logback') {
-			nums = mpp;
+			nums = msbvar.mpp;
 		}
+
 		shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,avatar,hour,username,nickto,message,type,ckold,direction,nums,cur);
 		if (uidlist[uid]==1) {
 			$("[data-uid="+uid+"]").find(".time_msgShout span").css("color",on_color);
@@ -515,6 +705,11 @@ function miunashout() {
 	});
 
 	socket.on('message', function(data){
+		if(parseFloat(shoutvol)) {
+			var sound = new Audio(rootpath + '/jscripts/miuna/shoutbox/msb_sound.mp3');
+			sound.volume = parseFloat(shoutvol);
+			sound.play();
+		}
 		checkMsg("msg", data.msg, data.nick, data.nickto, data.uid, data.gid, data.colorsht, data.avatar, data.uidto, data.edt, data.type, data._id, data.created, 'new', 0);
 	});
 
@@ -562,12 +757,12 @@ function miunashout() {
 
 	socket.on('updmsg', function (data) {
 		if (data) {
-			updmsg(data.newmsg, data.id);
+			updmsg(data.msg, data._id);
 		}
 	});
 
 	function logfunc() {
-		socket.emit('logfpgmsg', {mpp:mpp, uid:msbvar.mybbuid});
+		socket.emit('logfpgmsg', {mpp:msbvar.mpp});
 		socket.once('logfpgmsg', function(docs){
 			for (var i = docs.length-1; i >= 0; i--) {
 				checkMsg('lognext', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
@@ -591,9 +786,9 @@ function miunashout() {
 
 		function displayfpglogMsg(data){
 			npostbase = data;
-			pagebase = Math.ceil(npostbase/mpp);
+			pagebase = Math.ceil(npostbase/msbvar.mpp);
 			npost = npostbase + pagebase;
-			page = Math.ceil(npost/mpp);
+			page = Math.ceil(npost/msbvar.mpp);
 			if (page>1) {
 				initpage = "1/"+page;
 			}
@@ -606,7 +801,7 @@ function miunashout() {
 			logfunc();
 		}
 
-		socket.emit('countmsg', {uid:msbvar.mybbuid});
+		socket.emit('countmsg', function (data) {});
 		socket.once('countmsg', function (data) {
 			displayfpglogMsg(data);
 		});
@@ -636,7 +831,7 @@ function miunashout() {
 			$('#pagecount').attr('data-pageact', newactpage);
 			$('#pagecount').val(newpagelist);
 
-			socket.emit('logmsgnext', {id:prevpagefirstid, mpp:mpp, uid:msbvar.mybbuid});
+			socket.emit('logmsgnext', {id:prevpagefirstid, mpp:msbvar.mpp});
 			socket.once('logmsgnext', function (docs) {
 				for (var i = docs.length-1; i >= 0; i--) {
 					checkMsg('lognext', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
@@ -669,7 +864,7 @@ function miunashout() {
 			$('#pagecount').attr('data-pageact', newactpage);
 			$('#pagecount').val(newpagelist);
 
-			socket.emit('logmsgback', {id:prevpagelastid, mpp:mpp, uid:msbvar.mybbuid});
+			socket.emit('logmsgback', {id:prevpagelastid, mpp:msbvar.mpp});
 			socket.once('logmsgback', function (docs) {
 				for (var i = docs.length-1; i >= 0; i--) {
 					checkMsg('logback', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
@@ -683,10 +878,10 @@ function miunashout() {
 			if (!$("[data-uidpmtab="+uid+"]").length) {
 				$(".tabShout").removeClass( "selected" );
 				$('.wrapShout').hide();
-				$('.shoutarea').before( ' <div class="pmtab tabShout selected" data-uidpmtab="'+parseInt(uid)+'"><span class="pmuser" >'+escapeHtml(nick)+' </span>[<a href="#" class="closetab">x</a>]</div>' ).hide();
+				$('.shoutarea').before( ' <div class="pmtab tabShout selected" data-uidpmtab="'+parseInt(uid)+'"><span class="pmuser" >'+nick+' </span>[<a href="#" class="closetab">x</a>]</div>' ).hide();
 				$('.shoutarea').after( '<div class="pmarea wrapShout" data-uidpm="'+parseInt(uid)+'" style="height:'+shout_height+'px;"></div>' );
-				$('#shout_text').attr({"data-type": "pm", "data-tbuid": parseInt(uid), "data-nicktopm": escapeHtml(nick)});
-				socket.emit('getoldpmmsg', {ns: numshouts, suid1:''+parseInt(msbvar.mybbuid)+','+uid+'', suid2:''+uid+','+parseInt(msbvar.mybbuid)+''});
+				$('#shout_text').attr({"data-type": "pm", "data-tbuid": parseInt(uid), "data-nicktopm": nick});
+				socket.emit('getoldpmmsg', {ns: numshouts, suid: uid});
 				socket.once('load old pm msgs', function(docs){
 					for (var i = docs.length-1; i >= 0; i--) {
 						checkMsg("pm", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
@@ -698,7 +893,7 @@ function miunashout() {
 				$("[data-uidpmtab="+parseInt(uid)+"]").addClass( "selected" );
 				$('.wrapShout').hide();
 				$("[data-uidpm="+parseInt(uid)+"]").show();
-				$('#shout_text').attr({"data-type": "pm", "data-tbuid": parseInt(uid), "data-nicktopm": escapeHtml(nick)});
+				$('#shout_text').attr({"data-type": "pm", "data-tbuid": parseInt(uid), "data-nicktopm": nick});
 				if(direction!='top'){
 					$('[data-uidpm='+parseInt(uid)+']').animate({
 						scrollTop: ($('[data-uidpm='+parseInt(uid)+']')[0].scrollHeight)
@@ -715,11 +910,56 @@ function miunashout() {
 			$('.prune').modal({ zIndex: 7 });
 		}
 
-		function banusr(listban) {
-			heightwin = 120;
-			$('body').append( '<div class="banlist"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+ban_msglan+':</strong></div></td></tr><td class="trow1"><textarea id="ban_list" style="width:97%;height: '+heightwin*0.3+'px;" >'+listban+'</textarea></td></table></div><td><button id="sv_banlist" style="margin:4px;">'+shout_savelan+'</button></td></div>' );
+		function buildbanl(nicks,uid,ban,i) {
+			$("#banlselector").append('<option value="'+parseInt(uid)+'" data-i="'+parseInt(i)+'" data-ban="'+parseInt(ban)+'">'+nicks+'</option>');
+		}
+
+		function banusr(docs) {
+			bandata = docs;
+			heightwin = 200;
+			$('body').append( '<div class="banlist"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+ban_syslan+':</strong></div></td></tr><tr><td class="tcat">'+ban_msglan+':</td></tr><tr><td id="banlist" class="trow1"></td></tr><tr><td class="trow1"><select id="banlselector" style="width:100%"></select></td></tr></table></div><td><button id="banunbutton" style="margin:4px;">'+ban_unban_lan+'</button></td></div>' );
+			for (var i = docs.length-1; i >= 0; i--) {
+				buildbanl(docs[i].nicks, parseInt(docs[i].uid), parseInt(docs[i].ban), i);
+			}
+			$("[data-ban=1]").each(function(){
+				$("#banlist").append('<span class="banusr" data-uid="'+$(this).val()+'">'+$(this).html()+'</span>, ');
+			});
+			var onowlist = $('#banlist').html();
+			if (onowlist) {
+				$('#banlist').html(onowlist.slice(0, -2));
+			}
+			else {
+				$("#banlist").text(no_ban_usrlan);
+			}
+			$("#banlselector").select2();
 			$('.banlist').modal({ zIndex: 7 });
 		}
+
+		($.fn.on || $.fn.live).call($(document), 'click', '.banusr', function (e) {
+			e.preventDefault();
+			var uid = $(this).attr('data-uid');
+			$("#banlselector").select2("val", uid);
+		});
+
+		($.fn.on || $.fn.live).call($(document), 'click', '#banunbutton', function (e) {
+			e.preventDefault();
+			if ($('#banlselector option:selected').val()!=null) {
+				uid = $('#banlselector option:selected').val();
+				if (parseInt(uid)==parseInt(msbvar.mybbuid)) {
+					if(!$('#banyourself').length) {
+						$('<div/>', { id: 'banyourself', class: 'top-right' }).appendTo('body');
+					}
+					setTimeout(function() {
+						$('#banyourself').jGrowl(ban_selflan, { life: 1500 });
+					},200);
+				}
+				else {
+					socket.emit('updbanl', {uid: parseInt(uid)});
+					socket.emit('message', {msg:banlist_modmsglan, nickto:'0', colorsht: colorshout, uidto:0, type: 'system'});
+				}
+			}
+			$.modal.close();
+		});
 
 		function noticefunc(notice) {
 			heightwin = 120;
@@ -728,22 +968,17 @@ function miunashout() {
 		}
 
 		var banbut = [
-			'<a class="sceditor-button" title="'+ban_msglan+'" id="banusr">',
-				'<div style="background-image: url('+rootpath+'/images/buddy_delete.png); opacity: 1; cursor: pointer;">'+ban_msglan+'</div>',
+			'<a class="sceditor-button" title="'+ban_syslan+'" id="banusr">',
+				'<div style="background-image: url('+rootpath+'/images/buddy_delete.png); opacity: 1; cursor: pointer;">'+ban_syslan+'</div>',
 			'</a>'
 		];
 		$(banbut.join('')).appendTo('.sceditor-group:last');
 
 		($.fn.on || $.fn.live).call($(document), 'click', '#banusr', function (e) {
-			socket.emit('getbanl', function (data) {});
-			socket.once('getbanl', function (data) {
-				var listban = '';
-				if (data) {
-					var listban = data.ban;
-				}
-				banusr(listban);
+			socket.emit('getpml', function (data) {});
+			socket.once('getpml', function (data) {
+				banusr(data);
 			});
-
 		});
 
 		var notice = [
@@ -775,17 +1010,9 @@ function miunashout() {
 			prunefunc();
 		});
 
-		($.fn.on || $.fn.live).call($(document), 'click', '#sv_banlist', function (e) {
-			e.preventDefault();
-			socket.emit('message', {nick:msbvar.mybbusername, msg:banlist_modmsglan, nickto:'0', uid:parseInt(msbvar.mybbuid), gid:parseInt(msbvar.mybbusergroup), colorsht: colorshout, avatar:msbvar.mybbavatar, uidto:0, suid:''+parseInt(msbvar.mybbuid)+',0', type: 'system'});
-			var newlist = escapeHtml($('#ban_list').val());
-			socket.emit('updbanl', {ban:newlist});
-			$.modal.close();
-		});
-
 		($.fn.on || $.fn.live).call($(document), 'click', '#sv_notice', function (e) {
 			e.preventDefault();
-			socket.emit('message', {nick:msbvar.mybbusername, msg:not_modmsglan, nickto:'0', uid:parseInt(msbvar.mybbuid), gid:parseInt(msbvar.mybbusergroup), colorsht: colorshout, avatar:msbvar.mybbavatar, uidto:0, suid:''+parseInt(msbvar.mybbuid)+',0', type: 'system'});
+			socket.emit('message', {msg:not_modmsglan, nickto:'0', colorsht: colorshout, uidto:0, type: 'system'});
 			var textnot = escapeHtml($('#noticetext').val());
 			socket.emit('updnot', {not:textnot});
 			$.modal.close();
@@ -797,7 +1024,7 @@ function miunashout() {
 			socket.once('purge', function () {
 				$('.msgShout').remove();
 				setTimeout(function() {
-					socket.emit('message', {nick:msbvar.mybbusername, msg:shout_prunedmsglan, nickto:'0', uid:parseInt(msbvar.mybbuid), gid:parseInt(msbvar.mybbusergroup), colorsht: colorshout, avatar:msbvar.mybbavatar, uidto:0, suid:''+parseInt(msbvar.mybbuid)+',0', type: 'system'});
+					socket.emit('message', {msg:shout_prunedmsglan, nickto:'0', colorsht: colorshout, uidto:0, type: 'system'});
 				},50);
 			});
 			$.modal.close();
@@ -839,7 +1066,7 @@ function miunashout() {
 	});
 
 	function buildpml(nicks,uid,i) {
-		$("#pmlselector").append('<option value="'+parseInt(uid)+'" data-i="'+parseInt(i)+'">'+escapeHtml(nicks)+'</option>');
+		$("#pmlselector").append('<option value="'+parseInt(uid)+'" data-i="'+parseInt(i)+'">'+nicks+'</option>');
 	}
 
 	function pmlfunc(docs) {
@@ -859,9 +1086,39 @@ function miunashout() {
 			uid = $('#pmlselector option:selected').val();
 			index = $('#pmlselector option:selected').attr('data-i');
 			nick = pmdata[index].nicks;
+			if (parseInt(dcusrname)) {
+				nick = nick.replace(/(<([^>]+)>)/ig,"");
+			}
 			genpmfun(uid,nick);
 		}
 		$.modal.close();
+	});
+
+	function soundfunc() {
+		heightwin = 120;
+		$('body').append( '<div class="sound"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+sound_lan+'</strong></div></td></tr><tr><td class="tcat">'+volume_lan+':</td></tr><tr><td class="trow1" style="text-align:center;">'+min_lan+'<input id="s_volume" type="range" min="0" max="1" step="0.05" value="'+shoutvol+'"/>'+max_lan+'</td></tr></table></div><td></div>' );
+		var soundinput = document.getElementById("s_volume");
+		soundinput.addEventListener("input", function() {
+			var sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
+			if (!sb_sty) {
+				sb_sty = {};
+			}
+			sb_sty['sound'] = soundinput.value;
+			localStorage.setItem('sb_col_ft', JSON.stringify(sb_sty));
+			shoutvol = soundinput.value;
+		}, false);
+		$('.sound').modal({ zIndex: 7 });
+	}
+
+	var sound = [
+		'<a class="sceditor-button" title="'+sound_lan+'" id="sound">',
+			'<div style="background-image: url('+rootpath+'/images/sound.png); opacity: 1; cursor: pointer;">'+sound_lan+'</div>',
+		'</a>'
+	];
+	$(sound.join('')).appendTo('.sceditor-group:last');
+
+	($.fn.on || $.fn.live).call($(document), 'click', '#sound', function (e) {
+		soundfunc();
 	});
 
 	var pmlist = [
@@ -1031,7 +1288,10 @@ function miunashout() {
 		$('.numusr').html('<div id="onnow"></div>');
 		Object.keys(usrlist).map(function(key){displaylistuser(usrlist[key],key)});
 		function displaylistuser(usrlist,key){
-			$("#onnow").prepend('<span class="usron" data-uid="'+parseInt(key)+'">'+escapeHtml(usrlist)+'</span>, ');
+			if (parseInt(dcusrname)) {
+				usrlist = usrlist.replace(/(<([^>]+)>)/ig,"");
+			}
+			$("#onnow").prepend('<span class="usron" data-uid="'+parseInt(key)+'">'+usrlist+'</span>, ');
 		};
 		var onowlist = $('#onnow').html();
 		if (onowlist) {

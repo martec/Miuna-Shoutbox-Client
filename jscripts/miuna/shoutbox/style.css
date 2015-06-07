@@ -72,3 +72,7 @@
 	margin-top: 7px;
 	width: 30px;
 }
+#banusr div, #notice div, #prune div, #pml div,	 #log div,	#sound div {
+	height: 16px;
+	width: 16px;
+}
