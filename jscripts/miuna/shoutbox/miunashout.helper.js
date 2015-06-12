@@ -365,6 +365,7 @@ function miunashout_connect() {
 
 	var msb_token = JSON.parse(localStorage.getItem('msb_token'));
 	if (!msb_token) {
+		miunashout_reglog();
 		if(!$('#reg_alert').length) {
 			$('<div/>', { id: 'reg_alert', class: 'top-right' }).appendTo('body');
 		}
@@ -373,18 +374,27 @@ function miunashout_connect() {
 		},200);
 	}
 	else {
-		socket = io.connect(socketaddress, { 'forceNew': true });
+		if(!$('#auto_log').length) {
+			$('<div/>', { id: 'auto_log', class: 'top-right' }).appendTo('body');
+		}
+		setTimeout(function() {
+			$('#auto_log').jGrowl(spinner+aloginlang, { sticky: true });
+		},200);
+		socket = io.connect(socketaddress+'/member', { 'forceNew': true });
 			socket.on('authenticated', function () {
 				socket.emit('ckusr', {uid:msbvar.mybbuid});
 				socket.once('ckusr', function (data) {
 					if (data=='ok') {
+						if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
 						regelem = document.getElementById("register");
-						regelem.parentElement.removeChild(regelem);
+						if (regelem) { regelem.parentElement.removeChild(regelem); }
 						logelem = document.getElementById("login");
-						logelem.parentElement.removeChild(logelem);
+						if (logelem) { logelem.parentElement.removeChild(logelem); }
 						miunashout(socket);
 					}
 					else if (data=='banned') {
+						if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+						miunashout_reglog();
 						socket.disconnect();
 						if(!$('#usr_ban').length) {
 							$('<div/>', { id: 'usr_ban', class: 'top-right' }).appendTo('body');
@@ -394,6 +404,8 @@ function miunashout_connect() {
 						},200);
 					}
 					else {
+						if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+						miunashout_reglog();
 						socket.disconnect();
 						if(!$('#inv_alert').length) {
 							$('<div/>', { id: 'inv_alert', class: 'top-right' }).appendTo('body');
@@ -406,6 +418,8 @@ function miunashout_connect() {
 			})
 			.emit('authenticate', {token: msb_token['token']}) //send the jwt
 			.on("unauthorized", function(error) {
+				if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+				miunashout_reglog();
 				socket.disconnect();
 				if(!$('#inv_alert').length) {
 					$('<div/>', { id: 'inv_alert', class: 'top-right' }).appendTo('body');
@@ -419,7 +433,6 @@ function miunashout_connect() {
 
 function miunashout(socket) {
 	var notban = '1',
-	timeafter = msbvar.floodtime,
 	flooddetect,
 	colorshout = '',
 	shoutvol = '0',
@@ -427,6 +440,9 @@ function miunashout(socket) {
 	uidlist = '',
 	pmdata = '',
 	connected = false;
+
+	var shoutbut = '<button id="sbut" style="margin: 2px; float: right;">'+shout_lang+'</button>';
+	$(shoutbut).appendTo('.sceditor-toolbar');
 
 	if (parseInt(actcolor)) {
 		sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
@@ -515,123 +531,127 @@ function miunashout(socket) {
 		}
 	});
 
+	var last_check = Date.now()/1000;
+
 	$('#shout_text').sceditor('instance').bind('keypress', function(e) {
 		if(e.originalEvent.which == 13) {
-			if (timeafter >= msbvar.floodtime) {
-				if (notban) {
-					stopflood();
-					flooddetect = setInterval(function() {
-						timeafter += 1;
-					}, 1000);
-					if ($('#shout_text').attr('data-type')=='shout') {
+			e.preventDefault();
+			onshout(e);
+		}
+	});
 
-						var msg = escapeHtml($('#shout_text').sceditor('instance').val());
+	($.fn.on || $.fn.live).call($(document), 'click', '#sbut', function (e) {
+		e.preventDefault();
+		onshout(e);
+	});
 
-						if (parseInt(msbvar.msblc) > 0) {
-							msg = msg.slice(0, parseInt(msbvar.msblc));
-						}
+	function onshout(e) {
+		current = Date.now()/1000;
+		time_passed = current - last_check;
+		if (parseInt(time_passed) >= msbvar.floodtime) {
+			last_check = current;
+			if (notban) {
+				if ($('#shout_text').attr('data-type')=='shout') {
 
-						if(msg == '' || msg == null) {
-							$('#shout_text').sceditor('instance').val('').focus();
-							return false;
-						}
-						else {
-							$('#shout_text').sceditor('instance').val('').focus();
-							if ( /^\/me[\s]+(.*)$/.test(msg) ) {
-								socket.emit('message', {msg:msg.slice(4), nickto:'0', colorsht: colorshout, uidto:0, type: 'system'});
-							}
-							else {
-								socket.emit('message', {msg:msg, nickto:'0', uidto:0, colorsht: colorshout, type: 'shout'});
-							}
-							return false;
-						}
+					var msg = escapeHtml($('#shout_text').sceditor('instance').val());
+
+					if (parseInt(msbvar.msblc) > 0) {
+						msg = msg.slice(0, parseInt(msbvar.msblc));
 					}
-					else if ($('#shout_text').attr('data-type')=='pm') {
-						var msg = escapeHtml($('#shout_text').sceditor('instance').val()),
-						uid_to = parseInt($('#shout_text').attr('data-tbuid')),
-						nick_to = $('#shout_text').attr('data-nicktopm');
 
-						if(msg == '' || msg == null){
-							$('#shout_text').sceditor('instance').val('').focus();
-							return false;
-						}
-						else {
-							$('#shout_text').sceditor('instance').val('').focus();
-
-							if ( /^\/me[\s]+(.*)$/.test(msg) ) {
-								socket.emit('message', {msg:msg.slice(4), nickto:nick_to, colorsht: colorshout, uidto:uid_to, type: 'pmsystem'});
-							}
-							else {
-								socket.emit('message', {msg:msg, nickto:nick_to, colorsht: colorshout, uidto:uid_to, type: 'pmshout'});
-							}
-							return false;
-						}
+					if(msg == '' || msg == null) {
+						$('#shout_text').sceditor('instance').val('').focus();
+						return false;
 					}
-					else if ($('#shout_text').attr('data-type')=='edit') {
-						var msg = escapeHtml($('#shout_text').sceditor('instance').val());
-
-						if (parseInt(msbvar.msblc) > 0) {
-							msg = msg.slice(0, parseInt(msbvar.msblc));
-						}
-
-						if(msg == '' || msg == null){
-							if(!$('#upd_alert').length) {
-								$('<div/>', { id: 'upd_alert', class: 'bottom-right' }).appendTo('body');
-							}
-							setTimeout(function() {
-								$('#upd_alert').jGrowl(mes_emptylan, { life: 500 });
-							},200);
-							$('#shout_text').sceditor('instance').val('').focus();
-							return false;
+					else {
+						$('#shout_text').sceditor('instance').val('').focus();
+						if ( /^\/me[\s]+(.*)$/.test(msg) ) {
+							socket.emit('message', {msg:msg.slice(4), nickto:'0', colorsht: colorshout, uidto:0, type: 'system'});
 						}
 						else {
-							$('#shout_text').sceditor('instance').val('').focus();
-							if ($('.pmtab.selected').length) {
-								uid = $(this).attr('data-uidpmtab');
-								nickto = $(this).children('.pmuser').html();
-								$('#shout_text').attr({"data-type":"pm", "data-tbuid":uid, "data-nicktopm":nickto});
-							}
-							else {
-								$('#shout_text').attr("data-type", "shout");
-							}
-							$('#cancel_edit').remove();
-							$('#del_shout').remove();
-							var id = $('#shout_text').attr('data-id');
-							socket.emit('updmsg', {id:id, newmsg:msg});
-							return false;
+							socket.emit('message', {msg:msg, nickto:'0', uidto:0, colorsht: colorshout, type: 'shout'});
 						}
+						return false;
 					}
 				}
-				else {
-					$('#shout_text').sceditor('instance').val('').focus();
-					if(!$('#upd_alert').length) {
-						$('<div/>', { id: 'upd_alert', class: 'top-right' }).appendTo('body');
+				else if ($('#shout_text').attr('data-type')=='pm') {
+					var msg = escapeHtml($('#shout_text').sceditor('instance').val()),
+					uid_to = parseInt($('#shout_text').attr('data-tbuid')),
+					nick_to = $('#shout_text').attr('data-nicktopm');
+
+					if(msg == '' || msg == null){
+						$('#shout_text').sceditor('instance').val('').focus();
+						return false;
 					}
-					setTimeout(function() {
-						$('#upd_alert').jGrowl(usr_banlang, { life: 1500 });
-					},200);
-					e.preventDefault();
-					return;
+					else {
+						$('#shout_text').sceditor('instance').val('').focus();
+
+						if ( /^\/me[\s]+(.*)$/.test(msg) ) {
+							socket.emit('message', {msg:msg.slice(4), nickto:nick_to, colorsht: colorshout, uidto:uid_to, type: 'pmsystem'});
+						}
+						else {
+							socket.emit('message', {msg:msg, nickto:nick_to, colorsht: colorshout, uidto:uid_to, type: 'pmshout'});
+						}
+						return false;
+					}
+				}
+				else if ($('#shout_text').attr('data-type')=='edit') {
+					var msg = escapeHtml($('#shout_text').sceditor('instance').val());
+
+					if (parseInt(msbvar.msblc) > 0) {
+						msg = msg.slice(0, parseInt(msbvar.msblc));
+					}
+
+					if(msg == '' || msg == null){
+						if(!$('#upd_alert').length) {
+							$('<div/>', { id: 'upd_alert', class: 'bottom-right' }).appendTo('body');
+						}
+						setTimeout(function() {
+							$('#upd_alert').jGrowl(mes_emptylan, { life: 500 });
+						},200);
+						$('#shout_text').sceditor('instance').val('').focus();
+						return false;
+					}
+					else {
+						$('#shout_text').sceditor('instance').val('').focus();
+						if ($('.pmtab.selected').length) {
+							uid = $(this).attr('data-uidpmtab');
+							nickto = $(this).children('.pmuser').html();
+							$('#shout_text').attr({"data-type":"pm", "data-tbuid":uid, "data-nicktopm":nickto});
+						}
+						else {
+							$('#shout_text').attr("data-type", "shout");
+						}
+						$('#cancel_edit').remove();
+						$('#del_shout').remove();
+						var id = $('#shout_text').attr('data-id');
+						socket.emit('updmsg', {id:id, newmsg:msg});
+						return false;
+					}
 				}
 			}
 			else {
+				$('#shout_text').sceditor('instance').val('').focus();
 				if(!$('#upd_alert').length) {
-					$('<div/>', { id: 'upd_alert', class: 'bottom-right' }).appendTo('body');
+					$('<div/>', { id: 'upd_alert', class: 'top-right' }).appendTo('body');
 				}
 				setTimeout(function() {
-					diftime = msbvar.floodtime - timeafter;
-					$('#upd_alert').jGrowl(flood_msglan+diftime+secounds_msglan, { life: 500 });
-				},50);
+					$('#upd_alert').jGrowl(usr_banlang, { life: 1500 });
+				},200);
 				e.preventDefault();
 				return;
 			}
 		}
-	});
-
-	function stopflood() {
-		if(typeof flooddetect!='undefined') {
-			clearInterval(flooddetect);
-			timeafter = 0;
+		else {
+			if(!$('#upd_alert').length) {
+				$('<div/>', { id: 'upd_alert', class: 'bottom-right' }).appendTo('body');
+			}
+			setTimeout(function() {
+				time_after = msbvar.floodtime - parseInt(time_passed);
+				$('#upd_alert').jGrowl(flood_msglan+time_after+secounds_msglan, { life: 500 });
+			},50);
+			e.preventDefault();
+			return;
 		}
 	}
 

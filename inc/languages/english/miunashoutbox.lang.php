@@ -12,6 +12,7 @@
  * @author Martec
  * @requires jQuery, Nodejs, Socket.io, Express, MongoDB, mongoose, debug and Mybb
  */
+$l['miunashoutbox_shout'] = 'Shout';
 $l['miunashoutbox_yes'] = 'Yes';
 $l['miunashoutbox_no'] = 'No';
 $l['miunashoutbox_save'] = 'Save';
@@ -38,6 +39,7 @@ $l['miunashoutbox_up_imgur'] = 'Upload to Imgur';
 $l['miunashoutbox_password'] = 'Password';
 $l['miunashoutbox_register'] = 'Register';
 $l['miunashoutbox_login'] = 'Login';
+$l['miunashoutbox_auto_login'] = ' Login...';
 $l['miunashoutbox_reg_login'] = 'Please register or login first.';
 $l['miunashoutbox_inv_login'] = 'Invalid login, please try again.';
 $l['miunashoutbox_inv_token'] = 'Invalid Token or expired Token, please login again.';
