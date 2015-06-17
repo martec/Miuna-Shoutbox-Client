@@ -21,7 +21,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define('MSB_PLUGIN_VER', '3.2.1');
+define('MSB_PLUGIN_VER', '3.3.0');
 
 function miunashoutbox_info()
 {
@@ -427,6 +427,7 @@ function miunashoutbox_activate()
 	passwordlang = '{\$lang->miunashoutbox_password}',
 	registlang = '{\$lang->miunashoutbox_register}',
 	loginlang = '{\$lang->miunashoutbox_login}',
+	logofflang = '{\$lang->miunashoutbox_logoff}',
 	aloginlang = '{\$lang->miunashoutbox_auto_login}',
 	regloglang = '{\$lang->miunashoutbox_reg_login}',
 	invtoklang = '{\$lang->miunashoutbox_inv_token}',

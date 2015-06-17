@@ -530,6 +530,10 @@ function miunashout(socket) {
 			$(".notshow").text('');
 		}
 	});
+	
+	socket.on('purge', function () {
+		$('.msgShout').remove();
+	});
 
 	var last_check = Date.now()/1000;
 
@@ -926,7 +930,7 @@ function miunashout(socket) {
 	if ($.inArray(parseInt(msbvar.mybbusergroup), msbvar.miunamodgroups.split(',').map(function(modgrup){return Number(modgrup);}))!=-1) {
 		function prunefunc() {
 			heightwin = 120;
-			$('body').append( '<div class="prune"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+prune_shoutlan+':</strong></div></td></tr><td class="trow1">'+conf_questlan+'</td></table></div><td><button id="prune_yes" style="margin:4px;">'+shout_yeslan+'</button><button id="del_no" style="margin:4px;">'+shout_nolan+'</button></td></div>' );
+			$('body').append( '<div class="prune"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+prune_shoutlan+':</strong></div></td></tr><td class="trow1">'+conf_questlan+'</td></table></div><td><button id="prune_yes" style="margin:4px;">'+shout_yeslan+'</button><button id="no_ans" style="margin:4px;">'+shout_nolan+'</button></td></div>' );
 			$('.prune').modal({ zIndex: 7 });
 		}
 
@@ -1193,6 +1197,37 @@ function miunashout(socket) {
 		link.setAttribute('href', 'data:' + mimeType  +	 ';charset=utf-8,' + encodeURIComponent(elHtml));
 		document.getElementsByClassName('loglist')[0].appendChild(link);
 		$('a#loglink')[0].click();
+	});
+	
+	function logofffunc() {
+		heightwin = 120;
+		$('body').append( '<div class="logoff"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+logofflang+':</strong></div></td></tr><td class="trow1">'+conf_questlan+'</td></table></div><td><button id="logoff_yes" style="margin:4px;">'+shout_yeslan+'</button><button id="no_ans" style="margin:4px;">'+shout_nolan+'</button></td></div>' );
+		$('.logoff').modal({ zIndex: 7 });
+	}
+
+	var logoff = [
+		'<a class="sceditor-button" title="'+logofflang+'" id="logoff">',
+			'<div style="background-image: url('+rootpath+'/images/logoff.png); opacity: 1; cursor: pointer;">'+logofflang+'</div>',
+		'</a>'
+	];
+	$(logoff.join('')).appendTo('.sceditor-group:last');
+
+	($.fn.on || $.fn.live).call($(document), 'click', '#logoff', function (e) {
+		logofffunc();
+	});
+
+	($.fn.on || $.fn.live).call($(document), 'click', '#logoff_yes', function (e) {
+		e.preventDefault();
+		var msb_token = JSON.parse(localStorage.getItem('msb_token'));
+		if (msb_token) {
+			localStorage.removeItem('msb_token');
+		}
+		location.reload();
+	});
+		
+	($.fn.on || $.fn.live).call($(document), 'click', '#no_ans', function (e) {
+		e.preventDefault();
+		$.modal.close();
 	});
 
 	($.fn.on || $.fn.live).call($(document), 'dblclick', '.msgShout', function (e) {
