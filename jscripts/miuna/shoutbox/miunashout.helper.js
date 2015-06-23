@@ -82,17 +82,11 @@ function regexmiuna(message) {
 }
 
 function imgconv(type) {
-	$("div."+type+", [data-idpos="+type+"]").find( "a[href*='.jpg'], a[href*='.gif'], a[href*='.png']" ).each(function(e) {
+	$("div."+type+"").find( "a[href*='.jpg'], a[href*='.gif'], a[href*='.png']" ).each(function(e) {
 		var imgsrc = $(this).attr('href');
-		if (!$(this).children("img").length) {
-			$(this).empty().append( '<img src="'+ imgsrc +'" style="max-width:80px; max-height:80px" />' );
+		if (aimgrepl.trim()) {
+			imgsrc = aimgrepl.replace(/\$1/g, escapeHtml(imgsrc));
 		}
-	});
-}
-
-function imgconvlog() {
-	$("div.msglog").find( "a[href*='.jpg'], a[href*='.gif'], a[href*='.png']" ).each(function(e) {
-		var imgsrc = $(this).attr('href');
 		if (!$(this).children("img").length) {
 			$(this).empty().append( '<img src="'+ imgsrc +'" style="max-width:80px; max-height:80px" />' );
 		}
@@ -106,7 +100,7 @@ function scrollmiuna(key,area,ckold,imarea) {
 			imgarea = imarea;
 		}
 		$(""+area+"").animate({scrollTop: ($(""+area+"")[0].scrollHeight)}, 10);
-		$("div."+imgarea+" img, [data-idpos="+key+"] img").one("load", function() {
+		$("div."+imgarea+" img").one("load", function() {
 			$(""+area+"").animate({scrollTop: ($(""+area+"")[0].scrollHeight)}, 10);
 		}).each(function() {
 			if(this.complete) $(this).load();
@@ -209,18 +203,15 @@ function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,avatar,hour,username,n
 		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+""+pmspan+"*<span class='username_msgShout'>"+username+"</span><span class='content_msgShout' "+shoutcolor+">"+message+"</span>*</div>");
 	}
 	if(cur==0) {
+		if(parseInt(actaimg)) {
+			imgconv(count);
+		}
 		if (reqtype == 'lognext' || reqtype == 'logback') {
-			if(parseInt(actaimg)) {
-				imgconvlog();
-			}
 			if(direction!='top') {
 				scrollmiunalog();
 			}
 		}
 		else {
-			if(parseInt(actaimg)) {
-				imgconv(count);
-			}
 			if(direction!='top') {
 				scrollmiuna(key,scrollarea,ckold,count);
 			}
@@ -228,21 +219,21 @@ function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,avatar,hour,username,n
 	}
 }
 
-function reg_ajax(password) {
+function tok_ajax() {
 	$.ajax({
 		type: 'POST',
-		data: {
-			password: password
-		},
-		url: 'xmlhttp.php?action=msb_registration&my_post_key='+my_post_key
+		url: 'xmlhttp.php?action=msb_gettoken&my_post_key='+my_post_key
 	}).done(function (result) {
-		if (JSON.parse(result).sucess) {
-			if(!$('#reg_alert').length) {
-				$('<div/>', { id: 'reg_alert', class: 'top-right' }).appendTo('body');
+		console.log(result);
+		if (JSON.parse(result).token) {
+			token = JSON.parse(result).token;
+			var msb_token = JSON.parse(localStorage.getItem('msb_token'));
+			if (!msb_token) {
+				msb_token = {};
 			}
-			setTimeout(function() {
-				$('#reg_alert').jGrowl(tryloginlang, { life: 1500 });
-			},200);
+			msb_token['token'] = token;
+			localStorage.setItem('msb_token', JSON.stringify(msb_token));
+			miunashout_connect();
 		}
 		if (JSON.parse(result).error) {
 			if (JSON.parse(result).error=='admpassinc') {
@@ -266,97 +257,24 @@ function reg_ajax(password) {
 	return false;
 };
 
-function log_ajax(password) {
-	$.ajax({
-		type: 'POST',
-		data: {
-			uid: msbvar.mybbuid,
-			pass: password
-		},
-		url: msbaddress+'/login'
-	}).done(function (result) {
-		if (result.token) {
-			token = result.token;
-			var msb_token = JSON.parse(localStorage.getItem('msb_token'));
-			if (!msb_token) {
-				msb_token = {};
-			}
-			msb_token['token'] = token;
-			localStorage.setItem('msb_token', JSON.stringify(msb_token));
-			miunashout_connect();
-		}
-		if (result.error) {
-			if (result.error=='usrnotfound') {
-				if(!$('#usrnotfound_alert').length) {
-					$('<div/>', { id: 'usrnotfound_alert', class: 'top-right' }).appendTo('body');
-				}
-				setTimeout(function() {
-					$('#usrnotfound_alert').jGrowl(usrnotfoundlang, { life: 1500 });
-				},200);
-			}
-			if (result.error=='incpassword') {
-				if(!$('#incpass_alert').length) {
-					$('<div/>', { id: 'incpass_alert', class: 'top-right' }).appendTo('body');
-				}
-				setTimeout(function() {
-					$('#incpass_alert').jGrowl(inc_passlan, { life: 1500 });
-				},200);
-			}
-		}
-	});
-	return false;
-};
+function miunashout_connecticon() {
 
-function miunashout_reglog() {
-
-	function registfunc() {
-		heightwin = 120;
-		$('body').append( '<div class="regmod"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+passwordlang+':</strong></div></td></tr><td class="trow1"><input id="password" type="password" class="textbox" style="width:97%;" ></input></td></table></div><td><button id="sb_regist" style="margin:4px;">'+registlang+'</button></td></div>' );
-		$('.regmod').modal({ zIndex: 7 });
-	}
-
-	var register = [
-		'<a class="sceditor-button" title="'+registlang+'" id="register">',
-			'<div style="background-image: url('+rootpath+'/images/register.png); opacity: 1; cursor: pointer;">'+registlang+'</div>',
+	var connect = [
+		'<a class="sceditor-button" title="'+connectlang+'" id="msb_connect">',
+			'<div style="background-image: url('+rootpath+'/images/connect.png); opacity: 1; cursor: pointer;">'+connectlang+'</div>',
 		'</a>'
 	];
-	$(register.join('')).appendTo('.sceditor-group:last');
+	$(connect.join('')).appendTo('.sceditor-group:last');
 
-	($.fn.on || $.fn.live).call($(document), 'click', '#register', function (e) {
+	($.fn.on || $.fn.live).call($(document), 'click', '#msb_connect', function (e) {
 		e.preventDefault();
-		registfunc();
-	});
-
-	($.fn.on || $.fn.live).call($(document), 'click', '#sb_regist', function (e) {
-		e.preventDefault();
-		var password = $('#password').val();
-		reg_ajax(password);
-		$.modal.close();
-	});
-
-	function loginfunc() {
-		heightwin = 120;
-		$('body').append( '<div class="logmod"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+passwordlang+':</strong></div></td></tr><td class="trow1"><input id="password2" type="password" class="textbox" style="width:97%;" ></input></td></table></div><td><button id="sb_login" style="margin:4px;">'+loginlang+'</button></td></div>' );
-		$('.logmod').modal({ zIndex: 7 });
-	}
-
-	var login = [
-		'<a class="sceditor-button" title="'+loginlang+'" id="login">',
-			'<div style="background-image: url('+rootpath+'/images/login.png); opacity: 1; cursor: pointer;">'+loginlang+'</div>',
-		'</a>'
-	];
-	$(login.join('')).appendTo('.sceditor-group:last');
-
-	($.fn.on || $.fn.live).call($(document), 'click', '#login', function (e) {
-		e.preventDefault();
-		loginfunc();
-	});
-
-	($.fn.on || $.fn.live).call($(document), 'click', '#sb_login', function (e) {
-		e.preventDefault();
-		var password = $('#password2').val();
-		log_ajax(password);
-		$.modal.close();
+		sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
+		if (!sb_sty) {
+			sb_sty = {};
+		}
+		sb_sty['logoff'] = 0;
+		localStorage.setItem('sb_col_ft', JSON.stringify(sb_sty));		
+		tok_ajax();
 	});
 
 }
@@ -365,69 +283,70 @@ function miunashout_connect() {
 
 	var msb_token = JSON.parse(localStorage.getItem('msb_token'));
 	if (!msb_token) {
-		miunashout_reglog();
-		if(!$('#reg_alert').length) {
-			$('<div/>', { id: 'reg_alert', class: 'top-right' }).appendTo('body');
-		}
-		setTimeout(function() {
-			$('#reg_alert').jGrowl(regloglang, { life: 1500 });
-		},200);
+		tok_ajax();
 	}
 	else {
-		if(!$('#auto_log').length) {
-			$('<div/>', { id: 'auto_log', class: 'top-right' }).appendTo('body');
+		sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
+		if (!sb_sty) {
+			sb_sty = {};
 		}
-		setTimeout(function() {
-			$('#auto_log').jGrowl(spinner+aloginlang, { sticky: true });
-		},200);
-		socket = io.connect(socketaddress+'/member', { 'forceNew': true });
-			socket.on('authenticated', function () {
-				socket.emit('ckusr', {uid:msbvar.mybbuid});
-				socket.once('ckusr', function (data) {
-					if (data=='ok') {
-						if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
-						regelem = document.getElementById("register");
-						if (regelem) { regelem.parentElement.removeChild(regelem); }
-						logelem = document.getElementById("login");
-						if (logelem) { logelem.parentElement.removeChild(logelem); }
-						miunashout(socket);
-					}
-					else if (data=='banned') {
-						if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
-						miunashout_reglog();
-						socket.disconnect();
-						if(!$('#usr_ban').length) {
-							$('<div/>', { id: 'usr_ban', class: 'top-right' }).appendTo('body');
+		if (!sb_sty['logoff']) {
+			if(!$('#auto_log').length) {
+				$('<div/>', { id: 'auto_log', class: 'top-right' }).appendTo('body');
+			}
+			setTimeout(function() {
+				$('#auto_log').jGrowl(spinner+aloadlang, { sticky: true });
+			},200);
+			socket = io.connect(socketaddress+'/member', { 'forceNew': true });
+				socket.on('authenticated', function () {
+					socket.emit('ckusr', {uid:msbvar.mybbuid});
+					socket.once('ckusr', function (data) {
+						if (data=='ok') {
+							if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+							conelem = document.getElementById("msb_connect");
+							if (conelem) { conelem.parentElement.removeChild(conelem); }
+							miunashout(socket);
 						}
-						setTimeout(function() {
-							$('#usr_ban').jGrowl(usr_banlang, { life: 1500 });
-						},200);
-					}
-					else {
-						if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
-						miunashout_reglog();
-						socket.disconnect();
-						if(!$('#inv_alert').length) {
-							$('<div/>', { id: 'inv_alert', class: 'top-right' }).appendTo('body');
+						else if (data=='banned') {
+							if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+							miunashout_connecticon();
+							socket.disconnect();
+							if(!$('#usr_ban').length) {
+								$('<div/>', { id: 'usr_ban', class: 'top-right' }).appendTo('body');
+							}
+							setTimeout(function() {
+								$('#usr_ban').jGrowl(usr_banlang, { life: 1500 });
+							},200);
 						}
-						setTimeout(function() {
-							$('#inv_alert').jGrowl(invtoklang, { life: 1500 });
-						},200);
+						else {
+							if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+							socket.disconnect();
+							if(!$('#inv_alert').length) {
+								$('<div/>', { id: 'inv_alert', class: 'top-right' }).appendTo('body');
+							}
+							setTimeout(function() {
+								$('#inv_alert').jGrowl(invtoklang, { life: 1500 });
+							},200);
+							tok_ajax();
+						}
+					});
+				})
+				.emit('authenticate', {token: msb_token['token']}) //send the jwt
+				.on("unauthorized", function(error) {
+					if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+					socket.disconnect();
+					if(!$('#inv_alert').length) {
+						$('<div/>', { id: 'inv_alert', class: 'top-right' }).appendTo('body');
 					}
-				});
-			})
-			.emit('authenticate', {token: msb_token['token']}) //send the jwt
-			.on("unauthorized", function(error) {
-				if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
-				miunashout_reglog();
-				socket.disconnect();
-				if(!$('#inv_alert').length) {
-					$('<div/>', { id: 'inv_alert', class: 'top-right' }).appendTo('body');
-				}
-				setTimeout(function() {
-					$('#inv_alert').jGrowl(invtoklang, { life: 1500 });
-				},200);
-			});
+					setTimeout(function() {
+						$('#inv_alert').jGrowl(invtoklang, { life: 1500 });
+					},200);
+					tok_ajax();
+				});				
+		}
+		else {
+			miunashout_connecticon();
+		}
 	}
 }
 
@@ -1218,10 +1137,16 @@ function miunashout(socket) {
 
 	($.fn.on || $.fn.live).call($(document), 'click', '#logoff_yes', function (e) {
 		e.preventDefault();
-		var msb_token = JSON.parse(localStorage.getItem('msb_token'));
+		msb_token = JSON.parse(localStorage.getItem('msb_token'));
 		if (msb_token) {
 			localStorage.removeItem('msb_token');
 		}
+		sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
+		if (!sb_sty) {
+			sb_sty = {};
+		}
+		sb_sty['logoff'] = 1;
+		localStorage.setItem('sb_col_ft', JSON.stringify(sb_sty));
 		location.reload();
 	});
 		

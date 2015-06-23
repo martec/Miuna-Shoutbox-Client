@@ -63,8 +63,11 @@ function regexmiuna(message) {
 }
 
 function imgconv(key) {
-	$("div."+key+", [data-idpos="+key+"]").find( "a[href*='.jpg'], a[href*='.gif'], a[href*='.png']" ).each(function(e) {
+	$("div."+key+"").find( "a[href*='.jpg'], a[href*='.gif'], a[href*='.png']" ).each(function(e) {
 		var imgsrc = $(this).attr('href');
+		if (aimgrepl.trim()) {
+			imgsrc = aimgrepl.replace(/\$1/g, escapeHtml(imgsrc));
+		}		
 		if (!$(this).children("img").length) {
 			$(this).empty().append( '<img src="'+ imgsrc +'" style="max-width:80px; max-height:80px" />' );
 		}
@@ -78,7 +81,7 @@ function scrollmiuna(key,area,ckold,imarea) {
 			imgarea = imarea;
 		}
 		$(""+area+"").animate({scrollTop: ($(""+area+"")[0].scrollHeight)}, 10);
-		$("div."+imgarea+" img, [data-idpos="+key+"] img").one("load", function() {
+		$("div."+imgarea+" img").one("load", function() {
 			$(""+area+"").animate({scrollTop: ($(""+area+"")[0].scrollHeight)}, 10);
 		}).each(function() {
 			if(this.complete) $(this).load();
@@ -161,7 +164,12 @@ function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,avatar,hour,username,n
 }
 
 function miunashout() {
-
+	if(!$('#auto_lod').length) {
+		$('<div/>', { id: 'auto_lod', class: 'top-right' }).appendTo('body');
+	}
+	setTimeout(function() {
+		$('#auto_lod').jGrowl(spinner+aloadlang, { sticky: true });
+	},200);
 	socket = io.connect(socketaddress+'/guest', { 'forceNew': true });
 
 	socket.emit('getnot', function (data) {});
@@ -186,6 +194,7 @@ function miunashout() {
 	};
 
 	socket.once('load old msgs', function(docs){
+		if ($("#auto_lod").length) { $("#auto_lod .jGrowl-notification:last-child").remove(); }
 		for (var i = docs.length-1; i >= 0; i--) {
 			checkMsg("msg", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 		}

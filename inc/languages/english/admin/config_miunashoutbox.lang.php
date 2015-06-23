@@ -66,6 +66,8 @@ $l['miunashoutbox_shoutstart_opt'] = 'top=Top
 bottom=Bottom';
 $l['miunashoutbox_actaimg_title'] = 'Active auto image load?';
 $l['miunashoutbox_actaimg_desc'] = 'Set if you want active auto image load. If you select yes, Miuna Shoutbox will load image link automatically.';
+$l['miunashoutbox_aimgrepl_title'] = 'Replacement to auto image load';
+$l['miunashoutbox_aimgrepl_desc'] = 'Enter a replacement for the regular expression.<br /><strong>Example:</strong> https://myproxy/$1';
 $l['miunashoutbox_limcharact_title'] = 'Character limit';
 $l['miunashoutbox_limcharact_desc'] = 'Set character limit here. Set 0 to disable this feature.';
 $l['miunashoutbox_aavatar_title'] = 'Active avatar in Miuna Shoutbox?';
