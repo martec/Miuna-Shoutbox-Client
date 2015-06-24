@@ -36,10 +36,11 @@ function revescapeHtml(text) {
 }
 
 function regexment(text,nick) {
-  var mentregex = text.match(/(?:^|\s)@&quot;([^<]+?)&quot;|(?:^|\s)@&#039;([^<]+?)&#039;|(?:^|\s)@`([^<]+?)`|(?:^|\s)@(?:([^"<>\.,;!?()\[\]{}&\'\s\\]{3,}))/gmi);
-  if (mentregex) {
-	var patt = new RegExp(nick, "gi");
+	var mentregex = text.match(/(?:^|\s)@&quot;([^<]+?)&quot;|(?:^|\s)@&#039;([^<]+?)&#039;|(?:^|\s)@[`´]([^<]+?)[`´]|(?:^|\s)@(?:([^"<>\.,;!?()\[\]{}&\'\s\\]{3,}))/gmi);
+	if (mentregex) {
+		var patt = new RegExp(nick, "gi");
 		for (var i =0;i<mentregex.length;i++) {
+			mentregex[i] = mentregex[i].replace(/(&quot;|&#039;|`|´)/g, '');
 			if(nick.length == (String(mentregex[i]).trim().length - 1)) {
 				res = patt.exec(mentregex[i]);
 				if (nick.toUpperCase() == String(res).toUpperCase()) {
@@ -50,8 +51,8 @@ function regexment(text,nick) {
 			return 0;
 		}
 		return 0;
-  }
-  return 0;
+	}
+	return 0;
 }
 
 function regexmiuna(message) {
@@ -277,7 +278,7 @@ function tok_ajax() {
 						},200);
 					});
 				}
-				
+
 			}
 			else {
 				return result;
@@ -307,7 +308,7 @@ function miunashout_connecticon() {
 		sb_sty = {};
 	}
 	sb_sty['logoff'] = 0;
-	localStorage.setItem('sb_col_ft', JSON.stringify(sb_sty));		
+	localStorage.setItem('sb_col_ft', JSON.stringify(sb_sty));
 	tok_ajax();
 });
 
@@ -374,7 +375,7 @@ function miunashout_connect() {
 						$('#inv_alert').jGrowl(invtoklang, { life: 1500 });
 					},200);
 					tok_ajax();
-				});				
+				});
 		}
 		else {
 			miunashout_connecticon();
@@ -481,7 +482,7 @@ function miunashout(socket) {
 			$(".notshow").text('');
 		}
 	});
-	
+
 	socket.on('purge', function () {
 		$('.msgShout').remove();
 	});
@@ -1028,6 +1029,14 @@ function miunashout(socket) {
 	socket.on('rmvmsg', function (data) {
 		if (data) {
 			$('div.wrapShout').children('div.'+data.id+'').remove();
+			setTimeout(function() {
+				if ($('.shoutarea').children("[data-ment=yes]").length) {
+					document.title = '('+$('.shoutarea').children("[data-ment=yes]").length+') '+orgtit+'';
+				}
+				else {
+					document.title = orgtit;
+				}
+			},200);
 		}
 	});
 
@@ -1149,7 +1158,7 @@ function miunashout(socket) {
 		document.getElementsByClassName('loglist')[0].appendChild(link);
 		$('a#loglink')[0].click();
 	});
-	
+
 	function logofffunc() {
 		heightwin = 120;
 		$('body').append( '<div class="logoff"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+logofflang+':</strong></div></td></tr><td class="trow1">'+conf_questlan+'</td></table></div><td><button id="logoff_yes" style="margin:4px;">'+shout_yeslan+'</button><button id="no_ans" style="margin:4px;">'+shout_nolan+'</button></td></div>' );
@@ -1181,7 +1190,7 @@ function miunashout(socket) {
 		localStorage.setItem('sb_col_ft', JSON.stringify(sb_sty));
 		location.reload();
 	});
-		
+
 	($.fn.on || $.fn.live).call($(document), 'click', '#no_ans', function (e) {
 		e.preventDefault();
 		$.modal.close();
