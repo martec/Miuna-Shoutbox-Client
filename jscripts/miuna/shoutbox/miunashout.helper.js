@@ -220,73 +220,82 @@ function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,avatar,hour,username,n
 	}
 }
 
-function tok_ajax() {
-	$.ajax({
-		type: 'POST',
-		url: 'xmlhttp.php?action=msb_gettoken&my_post_key='+my_post_key
-	}).done(function (result) {
-		var IS_JSON = true;
-		try {
-			var json = $.parseJSON(result);
+function miunashout_connect() {
+	sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
+	if (!sb_sty) {
+		sb_sty = {};
+	}
+	if (!sb_sty['logoff']) {
+		if(!$('#auto_log').length) {
+			$('<div/>', { id: 'auto_log', class: 'top-right' }).appendTo('body');
 		}
-		catch(err) {
-			IS_JSON = false;
-		}
-		if (IS_JSON) {
-			if (JSON.parse(result).token) {
-				token = JSON.parse(result).token;
-				var msb_token = JSON.parse(localStorage.getItem('msb_token'));
-				if (!msb_token) {
-					msb_token = {};
-				}
-				msb_token['token'] = token;
-				localStorage.setItem('msb_token', JSON.stringify(msb_token));
-				miunashout_connect();
+		setTimeout(function() {
+			$('#auto_log').jGrowl(spinner+aloadlang, { sticky: true });
+		},200);
+		$.ajax({
+			type: 'POST',
+			url: 'xmlhttp.php?action=msb_gettoken&my_post_key='+my_post_key
+		}).done(function (result) {
+			var IS_JSON = true;
+			try {
+				var json = $.parseJSON(result);
 			}
-			if (JSON.parse(result).error) {
-				if (JSON.parse(result).error=='admpassinc') {
-					if(!$('#incadm_pass').length) {
-						$('<div/>', { id: 'incadm_pass', class: 'top-right' }).appendTo('body');
-					}
-					setTimeout(function() {
-						$('#incadm_pass').jGrowl(eregp, { life: 1500 });
-					},200);
-				}
-				if (JSON.parse(result).error=='admusarinc') {
-					if(!$('#incadm_user').length) {
-						$('<div/>', { id: 'incadm_user', class: 'top-right' }).appendTo('body');
-					}
-					setTimeout(function() {
-						$('#incadm_user').jGrowl(eregn, { life: 1500 });
-					},200);
-				}
-				miunashout_connecticon();
+			catch(err) {
+				IS_JSON = false;
 			}
-		}
-		else {
-			if(typeof result == 'object')
-			{
-				if(result.hasOwnProperty("errors"))
-				{
-					$.each(result.errors, function(i, message)
-					{
-						if(!$('#er_others').length) {
-							$('<div/>', { id: 'er_others', class: 'top-right' }).appendTo('body');
+			if (IS_JSON) {
+				if (JSON.parse(result).token) {
+					miunashout_connect_token(JSON.parse(result).token);
+				}
+				if (JSON.parse(result).error) {
+					if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+					if (JSON.parse(result).error=='admpassinc') {
+						if(!$('#incadm_pass').length) {
+							$('<div/>', { id: 'incadm_pass', class: 'top-right' }).appendTo('body');
 						}
 						setTimeout(function() {
-							$('#er_others').jGrowl(message, { life: 1500 });
+							$('#incadm_pass').jGrowl(eregp, { life: 1500 });
 						},200);
-					});
+					}
+					if (JSON.parse(result).error=='admusarinc') {
+						if(!$('#incadm_user').length) {
+							$('<div/>', { id: 'incadm_user', class: 'top-right' }).appendTo('body');
+						}
+						setTimeout(function() {
+							$('#incadm_user').jGrowl(eregn, { life: 1500 });
+						},200);
+					}
+					miunashout_connecticon();
 				}
-
 			}
 			else {
-				return result;
+				if(typeof result == 'object')
+				{
+					if(result.hasOwnProperty("errors"))
+					{
+						$.each(result.errors, function(i, message)
+						{
+							if(!$('#er_others').length) {
+								$('<div/>', { id: 'er_others', class: 'top-right' }).appendTo('body');
+							}
+							setTimeout(function() {
+								$('#er_others').jGrowl(message, { life: 1500 });
+							},200);
+						});
+					}
+					if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+				}
+				else {
+					return result;
+				}
+				if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+				miunashout_connecticon();
 			}
-			miunashout_connecticon();
-		}
-	});
-	return false;
+		});
+	}
+	else {
+		miunashout_connecticon();
+	}
 };
 
 function miunashout_connecticon() {
@@ -309,78 +318,58 @@ function miunashout_connecticon() {
 	}
 	sb_sty['logoff'] = 0;
 	localStorage.setItem('sb_col_ft', JSON.stringify(sb_sty));
-	tok_ajax();
+	miunashout_connect();
 });
 
-function miunashout_connect() {
+function miunashout_connect_token(token) {
 
-	var msb_token = JSON.parse(localStorage.getItem('msb_token'));
-	if (!msb_token) {
-		tok_ajax();
-	}
-	else {
-		sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
-		if (!sb_sty) {
-			sb_sty = {};
-		}
-		if (!sb_sty['logoff']) {
-			if(!$('#auto_log').length) {
-				$('<div/>', { id: 'auto_log', class: 'top-right' }).appendTo('body');
+	socket = io.connect(socketaddress+'/member', { 'forceNew': true });
+	socket.on('authenticated', function () {
+		socket.emit('ckusr', {uid:msbvar.mybbuid});
+		socket.once('ckusr', function (data) {
+			if (data=='ok') {
+				if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+				conelem = document.getElementById("msb_connect");
+				if (conelem) { conelem.parentElement.removeChild(conelem); }
+				miunashout(socket);
 			}
-			setTimeout(function() {
-				$('#auto_log').jGrowl(spinner+aloadlang, { sticky: true });
-			},200);
-			socket = io.connect(socketaddress+'/member', { 'forceNew': true });
-				socket.on('authenticated', function () {
-					socket.emit('ckusr', {uid:msbvar.mybbuid});
-					socket.once('ckusr', function (data) {
-						if (data=='ok') {
-							if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
-							conelem = document.getElementById("msb_connect");
-							if (conelem) { conelem.parentElement.removeChild(conelem); }
-							miunashout(socket);
-						}
-						else if (data=='banned') {
-							if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
-							miunashout_connecticon();
-							socket.disconnect();
-							if(!$('#usr_ban').length) {
-								$('<div/>', { id: 'usr_ban', class: 'top-right' }).appendTo('body');
-							}
-							setTimeout(function() {
-								$('#usr_ban').jGrowl(usr_banlang, { life: 1500 });
-							},200);
-						}
-						else {
-							if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
-							socket.disconnect();
-							if(!$('#inv_alert').length) {
-								$('<div/>', { id: 'inv_alert', class: 'top-right' }).appendTo('body');
-							}
-							setTimeout(function() {
-								$('#inv_alert').jGrowl(invtoklang, { life: 1500 });
-							},200);
-							tok_ajax();
-						}
-					});
-				})
-				.emit('authenticate', {token: msb_token['token']}) //send the jwt
-				.on("unauthorized", function(error) {
-					if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
-					socket.disconnect();
-					if(!$('#inv_alert').length) {
-						$('<div/>', { id: 'inv_alert', class: 'top-right' }).appendTo('body');
-					}
-					setTimeout(function() {
-						$('#inv_alert').jGrowl(invtoklang, { life: 1500 });
-					},200);
-					tok_ajax();
-				});
+			else if (data=='banned') {
+				if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+				miunashout_connecticon();
+				socket.disconnect();
+				if(!$('#usr_ban').length) {
+					$('<div/>', { id: 'usr_ban', class: 'top-right' }).appendTo('body');
+				}
+				setTimeout(function() {
+					$('#usr_ban').jGrowl(usr_banlang, { life: 1500 });
+				},200);
+			}
+			else {
+				if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+				socket.disconnect();
+				if(!$('#inv_alert').length) {
+					$('<div/>', { id: 'inv_alert', class: 'top-right' }).appendTo('body');
+				}
+				setTimeout(function() {
+					$('#inv_alert').jGrowl(invtoklang, { life: 1500 });
+				},200);
+				miunashout_connecticon();
+			}
+		});
+	})
+	.emit('authenticate', {token: token}) //send the jwt
+	.on("unauthorized", function(error) {
+		if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+		socket.disconnect();
+		if(!$('#inv_alert').length) {
+			$('<div/>', { id: 'inv_alert', class: 'top-right' }).appendTo('body');
 		}
-		else {
-			miunashout_connecticon();
-		}
-	}
+		setTimeout(function() {
+			$('#inv_alert').jGrowl(invtoklang, { life: 1500 });
+		},200);
+		miunashout_connecticon();
+	});
+
 }
 
 function miunashout(socket) {
