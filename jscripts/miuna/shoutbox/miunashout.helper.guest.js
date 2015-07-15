@@ -178,7 +178,11 @@ function miunashout() {
 			$(".notshow").text(escapeHtml(data.not));
 		}
 	});
-	
+
+	if (parseInt(numshouts)>100) {
+		numshouts = '100';
+	}
+
 	socket.emit('getoldmsg', {ns:numshouts});
 
 	function displayMsg(reqtype, message, username, uidp, uid, gid, colorsht, avatar, nickto, edt, type, key, created, ckold, cur){
