@@ -21,7 +21,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define('MSB_PLUGIN_VER', '5.0.0');
+define('MSB_PLUGIN_VER', '5.3.0');
 
 function miunashoutbox_info()
 {
@@ -328,12 +328,48 @@ function miunashoutbox_install()
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
+		'name' => 'miunashout_act_bold',
+		'title' => $lang->miunashoutbox_acbold_title,
+		'description' => $lang->miunashoutbox_acbold_desc,
+		'optionscode' => 'yesno',
+		'value' => 1,
+		'disporder' => 31,
+		'gid'		=> $groupid
+	);
+	$miunashout_setting[] = array(
+		'name' => 'miunashout_styles_font',
+		'title' => $lang->miunashoutbox_stfont_title,
+		'description' => $lang->miunashoutbox_stfont_desc,
+		'optionscode' => 'textarea',
+		'value' => 'Arial,Arial Black,Comic Sans MS,Courier New,Georgia,Impact,Sans-serif,Serif,Times New Roman,Trebuchet MS,Verdana',
+		'disporder' => 32,
+		'gid'		=> $groupid
+	);
+	$miunashout_setting[] = array(
+		'name' => 'miunashout_styles_size',
+		'title' => $lang->miunashoutbox_sizfont_title,
+		'description' => $lang->miunashoutbox_sizfont_desc,
+		'optionscode' => 'textarea',
+		'value' => '11,12,13',
+		'disporder' => 33,
+		'gid'		=> $groupid
+	);
+	$miunashout_setting[] = array(
+		'name' => 'miunashout_deststyl_select',
+		'title' => $lang->miunashoutbox_deststyl_title,
+		'description' => $lang->miunashoutbox_deststyl_desc,
+		'optionscode' => 'yesno',
+		'value' => 0,
+		'disporder' => 34,
+		'gid'		=> $groupid
+	);	
+	$miunashout_setting[] = array(
 		'name' => 'miunashout_dis_colorusrn',
 		'title' => $lang->miunashoutbox_dcln_title,
 		'description' => $lang->miunashoutbox_dcln_desc,
 		'optionscode' => 'yesno',
 		'value' => 0,
-		'disporder' => 31,
+		'disporder' => 35,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -342,7 +378,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_destindx_desc,
 		'optionscode' => 'yesno',
 		'value' => 0,
-		'disporder' => 32,
+		'disporder' => 36,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -351,7 +387,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_actport_desc,
 		'optionscode' => 'yesno',
 		'value' => 0,
-		'disporder' => 33,
+		'disporder' => 37,
 		'gid'		=> $groupid
 	);
 
@@ -413,8 +449,11 @@ function miunashoutbox_activate()
 	miuna_smilies = {
 		{\$smilies_json}
 	},
+	fontype = fontsize = fontbold = '',
 	iclid = '{\$mybb->settings['miunashout_imgurapi']}',
 	maxnamelength = '{\$mybb->settings['maxnamelength']}',
+	msbfontsize = '{\$mybb->settings['miunashout_styles_size']}',
+	msbfontype = '{\$mybb->settings['miunashout_styles_font']}',
 	msbvar = {mybbuid:'{\$mybb->user['uid']}', mybbusername:'{\$msbusrname}', mybbusergroup:'{\$mybb->user['usergroup']}', miunamodgroups:'{\$mybb->settings['miunashout_mod_grups']}', msblc:'{\$mybb->settings['miunashout_lim_character']}', floodtime:'{\$mybb->settings['miunashout_antiflood']}', mpp: '{\$mybb->settings['miunashout_lognum_shouts']}'},
 	shout_lang = '{\$lang->miunashoutbox_shout}',
 	add_spolang = '{\$lang->miunashoutbox_add_spoiler}',
@@ -481,6 +520,8 @@ function miunashoutbox_activate()
 	aimgrepl = '{\$mybb->settings['miunashout_aimg_replacement']}',
 	actavat = '{\$mybb->settings['miunashout_act_avatar']}',
 	actcolor = '{\$mybb->settings['miunashout_act_color']}',
+	actbold = '{\$mybb->settings['miunashout_act_bold']}',
+	destyl = '{\$mybb->settings['miunashout_deststyl_select']}',
 	dcusrname = '{\$mybb->settings['miunashout_dis_colorusrn']}',
 	socketaddress = '{\$mybb->settings['miunashout_socketio']}',
 	{\$editor_language}
@@ -556,6 +597,9 @@ function miunashoutbox_activate()
 <script type=\"text/javascript\">
 <!--
 	var msbvar = {mybbuid:'{\$mybb->user['uid']}', mybbusername:'{\$lang->guest}', mybbavatar:'{\$mybb->user['avatar']}', mybbusergroup:'{\$mybb->user['usergroup']}', miunamodgroups:'{\$mybb->settings['miunashout_mod_grups']}', msblc:'{\$mybb->settings['miunashout_lim_character']}', floodtime:'{\$mybb->settings['miunashout_antiflood']}'},
+	fontype = fontsize = fontbold = '',
+	msbfontsize = '{\$mybb->settings['miunashout_styles_size']}',
+	msbfontype = '{\$mybb->settings['miunashout_styles_font']}',
 	spo_lan = '{\$lang->miunashoutbox_spoiler}',
 	show_lan = '{\$lang->miunashoutbox_show}',
 	hide_lan = '{\$lang->miunashoutbox_hide}',
@@ -569,6 +613,8 @@ function miunashoutbox_activate()
 	aimgrepl = '{\$mybb->settings['miunashout_aimg_replacement']}',
 	actavat = '{\$mybb->settings['miunashout_act_avatar']}',
 	actcolor = '{\$mybb->settings['miunashout_act_color']}',
+	actbold = '{\$mybb->settings['miunashout_act_bold']}',
+	destyl = '{\$mybb->settings['miunashout_deststyl_select']}',
 	dcusrname = '{\$mybb->settings['miunashout_dis_colorusrn']}',
 	socketaddress = '{\$mybb->settings['miunashout_socketio']}';
 // -->

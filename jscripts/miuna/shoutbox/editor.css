@@ -13,6 +13,21 @@ textarea.editorShout {
     height: 16px;
     background-repeat: no-repeat;
 }
+.yuieditor-button-bold div {
+    
+  background-position:  0px -592px;
+    
+}
+.yuieditor-button-font div {
+    
+  background-position:  0px -432px;
+    
+}
+.yuieditor-button-size div {
+    
+  background-position:  0px -160px;
+    
+}
 .yuieditor-button-emoticon div {
     
   background-position:  0px -448px;
@@ -96,6 +111,19 @@ div.yuieditor-dropdown .button:hover {
     -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
     -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+}
+div.yuieditor-font-picker, div.yuieditor-fontsize-picker {
+    padding: 6px 0;
+}
+.yuieditor-fontsize-option, .yuieditor-font-option {
+    display: block;
+    padding: 3px;
+    cursor: pointer;
+    text-decoration: none;
+    color: #222;
+}
+.yuieditor-fontsize-option:hover, .yuieditor-font-option:hover {
+    background: #eee;
 }
 .yuieditor-insertemoticon, div.yuieditor-color-picker {
     padding: 0px !important;

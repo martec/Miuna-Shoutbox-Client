@@ -138,8 +138,8 @@ function autocleaner(area,count,numshouts,direction) {
 	},200);
 }
 
-function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,avatar,hour,username,nickto,message,type,ckold,direction,numshouts,cur) {
-	var preapp = lanpm = pmspan = area = scrollarea = count = coloruser = usravatar = shoutcolor = '';
+function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,font,size,bold,avatar,hour,username,nickto,message,type,ckold,direction,numshouts,cur) {
+	var preapp = lanpm = pmspan = area = scrollarea = count = coloruser = usravatar = shoutstyle = '';
 	if(direction=='top'){
 		preapp = 'prepend';
 		if (reqtype == 'logback') {
@@ -190,7 +190,26 @@ function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,avatar,hour,username,n
 	if (parseInt(actcolor)) {
 		if (colorsht) {
 			if (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(colorsht)) {
-				shoutcolor = 'style="color:'+colorsht+'"';
+				shoutstyle += 'color:'+colorsht+';';
+			}
+		}
+	}
+	if (parseInt(actbold)) {
+		if (parseInt(bold)===1) {
+			shoutstyle += 'font-weight:bold;';
+		}
+	}
+	if (!parseInt(destyl)) {
+		if (font.trim()) {
+			font_rls = msbfontype.split(',');
+			if (typeof font_rls[parseInt(font)] !== 'undefined') {
+				shoutstyle += "font-family:"+font_rls[parseInt(font)].trim()+";";
+			}
+		}
+		if (size.trim()) {
+			size_rls = msbfontsize.split(',');
+			if (typeof size_rls[parseInt(size)] !== 'undefined') {
+				shoutstyle += 'font-size:'+size_rls[parseInt(size)].trim()+'px;';
 			}
 		}
 	}
@@ -198,10 +217,10 @@ function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,avatar,hour,username,n
 		pmspan = "<span class='pm_inf'>["+lanpm+" "+nickto+"] </span>";
 	}
 	if(type == 'shout' || type == 'pmshout') {
-		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+"<span class='time_msgShout'><span>[</span>"+hour+"<span>]</span></span>"+pmspan+"<span class='username_msgShout'>"+username+"</span>:<span class='content_msgShout' "+shoutcolor+">"+message+"</span></div>");
+		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+"<span class='time_msgShout'><span>[</span>"+hour+"<span>]</span></span>"+pmspan+"<span class='username_msgShout'>"+username+"</span>:<span class='content_msgShout' style='"+shoutstyle+"'>"+message+"</span></div>");
 	}
 	if(type == 'system' || type == 'pmsystem') {
-		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+""+pmspan+"*<span class='username_msgShout'>"+username+"</span><span class='content_msgShout' "+shoutcolor+">"+message+"</span>*</div>");
+		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+""+pmspan+"*<span class='username_msgShout'>"+username+"</span><span class='content_msgShout' style='"+shoutstyle+"'>"+message+"</span>*</div>");
 	}
 	if(cur==0) {
 		if(parseInt(actaimg)) {
@@ -381,6 +400,21 @@ function miunashout(socket) {
 			}
 		}
 	}
+	
+	if (!parseInt(destyl)) {
+		sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
+		if (sb_sty) {
+			fontype = sb_sty['font'];
+			fontsize = sb_sty['size'];
+		}
+	}
+
+	if (parseInt(actbold)) {
+		sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
+		if (sb_sty) {
+			fontbold = sb_sty['bold'];
+		}
+	}	
 
 	sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
 	if (sb_sty) {
@@ -499,10 +533,10 @@ function miunashout(socket) {
 					else {
 						$('#shout_text').val('').focus();
 						if ( /^\/me[\s]+(.*)$/.test(msg) ) {
-							socket.emit('message', {msg:msg.slice(4), nickto:'0', colorsht: colorshout, uidto:0, type: 'system'});
+							socket.emit('message', {msg:msg.slice(4), nickto:'0', colorsht: colorshout, font: fontype, size: fontsize, bold: fontbold, uidto:0, type: 'system'});
 						}
 						else {
-							socket.emit('message', {msg:msg, nickto:'0', uidto:0, colorsht: colorshout, type: 'shout'});
+							socket.emit('message', {msg:msg, nickto:'0', uidto:0, colorsht: colorshout, font: fontype, size: fontsize, bold: fontbold, type: 'shout'});
 						}
 						return false;
 					}
@@ -520,10 +554,10 @@ function miunashout(socket) {
 						$('#shout_text').val('').focus();
 
 						if ( /^\/me[\s]+(.*)$/.test(msg) ) {
-							socket.emit('message', {msg:msg.slice(4), nickto:nick_to, colorsht: colorshout, uidto:uid_to, type: 'pmsystem'});
+							socket.emit('message', {msg:msg.slice(4), nickto:nick_to, colorsht: colorshout, font: fontype, size: fontsize, bold: fontbold, uidto:uid_to, type: 'pmsystem'});
 						}
 						else {
-							socket.emit('message', {msg:msg, nickto:nick_to, colorsht: colorshout, uidto:uid_to, type: 'pmshout'});
+							socket.emit('message', {msg:msg, nickto:nick_to, colorsht: colorshout, font: fontype, size: fontsize, bold: fontbold, uidto:uid_to, type: 'pmshout'});
 						}
 						return false;
 					}
@@ -588,7 +622,7 @@ function miunashout(socket) {
 		}
 	}
 
-	function displayMsg(reqtype, message, username, uidp, uid, gid, colorsht, avatar, nickto, edt, type, key, created, ckold, cur){
+	function displayMsg(reqtype, message, username, uidp, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, type, key, created, ckold, cur){
 		var hour = moment(created).utcOffset(parseInt(zoneset)).format(zoneformt);
 		message = regexmiuna(escapeHtml(revescapeHtml(message))),
 		nums = numshouts;
@@ -601,7 +635,7 @@ function miunashout(socket) {
 			}
 		}
 
-		shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,avatar,hour,username,nickto,message,type,ckold,direction,nums,cur);
+		shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,font,size,bold,avatar,hour,username,nickto,message,type,ckold,direction,nums,cur);
 		if (uidlist[uid]==1) {
 			$("[data-uid="+uid+"]").find(".time_msgShout span").css("color",on_color);
 		}
@@ -618,22 +652,22 @@ function miunashout(socket) {
 		}
 	};
 
-	function checkMsg(req, msg, nick, nickto, uid, gid, colorsht, avatar, uidto, edt, type, _id, created, ckold, cur) {
+	function checkMsg(req, msg, nick, nickto, uid, gid, colorsht, font, size, bold, avatar, uidto, edt, type, _id, created, ckold, cur) {
 		var mtype = 'shout';
 
 		if (req=='lognext' || req=='logback') {
 			mtype = req;
 		}
 		if (nickto=='0') {
-			displayMsg(mtype, msg, nick, uid, uid, gid, colorsht, avatar, nickto, edt, type, _id, created, ckold, cur);
+			displayMsg(mtype, msg, nick, uid, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, type, _id, created, ckold, cur);
 		}
 		else {
 			if (uid==msbvar.mybbuid) {
 				if (req=="msg" || req=='lognext' || req=='logback') {
-					displayMsg(mtype, msg, nick, uidto, uid, gid, colorsht, avatar, nickto, edt, type, _id, created, ckold, cur);
+					displayMsg(mtype, msg, nick, uidto, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, type, _id, created, ckold, cur);
 				}
 				if ($("[data-uidpm="+uidto+"]").length && req!='lognext' && req!='logback') {
-					displayMsg("pm", msg, nick, uidto, uid, gid, colorsht, avatar, nickto, edt, type, _id, created, ckold, cur);
+					displayMsg("pm", msg, nick, uidto, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, type, _id, created, ckold, cur);
 				}
 				else {
 					return;
@@ -641,10 +675,10 @@ function miunashout(socket) {
 			}
 			else if (uidto==msbvar.mybbuid) {
 				if (req=="msg" || req=='lognext' || req=='logback') {
-					displayMsg(mtype, msg, nick, uid, uid, gid, colorsht, avatar, nickto, edt, type, _id, created, ckold, cur);
+					displayMsg(mtype, msg, nick, uid, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, type, _id, created, ckold, cur);
 				}
 				if($("[data-uidpm="+uid+"]").length && req!='lognext' && req!='logback') {
-					displayMsg("pm", msg, nick, uid, uid, gid, colorsht, avatar, nickto, edt, type, _id, created, ckold, cur);
+					displayMsg("pm", msg, nick, uid, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, type, _id, created, ckold, cur);
 				}
 				else {
 					return;
@@ -658,7 +692,7 @@ function miunashout(socket) {
 
 	socket.once('load old msgs', function(docs){
 		for (var i = docs.length-1; i >= 0; i--) {
-			checkMsg("msg", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
+			checkMsg("msg", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 		}
 	});
 
@@ -668,7 +702,7 @@ function miunashout(socket) {
 			sound.volume = parseFloat(shoutvol);
 			sound.play();
 		}
-		checkMsg("msg", data.msg, data.nick, data.nickto, data.uid, data.gid, data.colorsht, data.avatar, data.uidto, data.edt, data.type, data._id, data.created, 'new', 0);
+		checkMsg("msg", data.msg, data.nick, data.nickto, data.uid, data.gid, data.colorsht, data.font, data.size, data.bold, data.avatar, data.uidto, data.edt, data.type, data._id, data.created, 'new', 0);
 	});
 
 	function updmsg(message, key){
@@ -730,7 +764,7 @@ function miunashout(socket) {
 		socket.emit('logfpgmsg', {mpp:numslogs});
 		socket.once('logfpgmsg', function(docs){
 			for (var i = docs.length-1; i >= 0; i--) {
-				checkMsg('lognext', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
+				checkMsg('lognext', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 			}
 		});
 	}
@@ -813,7 +847,7 @@ function miunashout(socket) {
 			socket.emit('logmsgnext', {id:prevpagefirstid, mpp:numslogs});
 			socket.once('logmsgnext', function (docs) {
 				for (var i = docs.length-1; i >= 0; i--) {
-					checkMsg('lognext', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
+					checkMsg('lognext', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 				}
 			});
 		}
@@ -853,7 +887,7 @@ function miunashout(socket) {
 			socket.emit('logmsgback', {id:prevpagelastid, mpp:numslogs});
 			socket.once('logmsgback', function (docs) {
 				for (var i = docs.length-1; i >= 0; i--) {
-					checkMsg('logback', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
+					checkMsg('logback', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 				}
 			});
 		}
@@ -870,7 +904,7 @@ function miunashout(socket) {
 				socket.emit('getoldpmmsg', {ns: numshouts, suid: uid});
 				socket.once('load old pm msgs', function(docs){
 					for (var i = docs.length-1; i >= 0; i--) {
-						checkMsg("pm", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
+						checkMsg("pm", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 					}
 				});
 			}
@@ -941,7 +975,7 @@ function miunashout(socket) {
 				}
 				else {
 					socket.emit('updbanl', {uid: parseInt(uid)});
-					socket.emit('message', {msg:banlist_modmsglan, nickto:'0', colorsht: colorshout, uidto:0, type: 'system'});
+					socket.emit('message', {msg:banlist_modmsglan, nickto:'0', colorsht: colorshout, font: fontype, size: fontsize, bold: fontbold, uidto:0, type: 'system'});
 				}
 			}
 			$.modal.close();
@@ -986,7 +1020,7 @@ function miunashout(socket) {
 
 		($.fn.on || $.fn.live).call($(document), 'click', '#sv_notice', function (e) {
 			e.preventDefault();
-			socket.emit('message', {msg:not_modmsglan, nickto:'0', colorsht: colorshout, uidto:0, type: 'system'});
+			socket.emit('message', {msg:not_modmsglan, nickto:'0', colorsht: colorshout, font: fontype, size: fontsize, bold: fontbold, uidto:0, type: 'system'});
 			var textnot = escapeHtml($('#noticetext').val());
 			socket.emit('updnot', {not:textnot});
 			$.modal.close();
@@ -998,7 +1032,7 @@ function miunashout(socket) {
 			socket.once('purge', function () {
 				$('.msgShout').remove();
 				setTimeout(function() {
-					socket.emit('message', {msg:shout_prunedmsglan, nickto:'0', colorsht: colorshout, uidto:0, type: 'system'});
+					socket.emit('message', {msg:shout_prunedmsglan, nickto:'0', colorsht: colorshout, font: fontype, size: fontsize, bold: fontbold, uidto:0, type: 'system'});
 				},50);
 			});
 			$.modal.close();

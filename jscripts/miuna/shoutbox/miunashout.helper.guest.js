@@ -109,8 +109,8 @@ function autocleaner(area,count,numshouts,direction) {
 	},200);
 }
 
-function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,avatar,hour,username,nickto,message,type,ckold,direction,numshouts,cur) {
-	var preapp = lanpm = pmspan = area = scrollarea = count = coloruser = usravatar = shoutcolor = '';
+function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,font,size,bold,avatar,hour,username,nickto,message,type,ckold,direction,numshouts,cur) {
+	var preapp = lanpm = pmspan = area = scrollarea = count = coloruser = usravatar = shoutstyle = '';
 	if(direction=='top'){
 		preapp = 'prepend';
 		if (reqtype == 'logback') {
@@ -143,15 +143,34 @@ function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,avatar,hour,username,n
 	if (parseInt(actcolor)) {
 		if (colorsht) {
 			if (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(colorsht)) {
-				shoutcolor = 'style="color:'+colorsht+'"';
+				shoutstyle += 'color:'+colorsht+';';
+			}
+		}
+	}
+	if (parseInt(actbold)) {
+		if (parseInt(bold)===1) {
+			shoutstyle += 'font-weight:bold;';
+		}
+	}
+	if (!parseInt(destyl)) {
+		if (font.trim()) {
+			font_rls = msbfontype.split(',');
+			if (typeof font_rls[parseInt(font)] !== 'undefined') {
+				shoutstyle += "font-family:"+font_rls[parseInt(font)].trim()+";";
+			}
+		}
+		if (size.trim()) {
+			size_rls = msbfontsize.split(',');
+			if (typeof size_rls[parseInt(size)] !== 'undefined') {
+				shoutstyle += 'font-size:'+size_rls[parseInt(size)].trim()+'px;';
 			}
 		}
 	}
 	if(type == 'shout') {
-		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+"<span class='time_msgShout'><span>[</span>"+hour+"<span>]</span></span><span class='username_msgShout'>"+username+"</span>:<span class='content_msgShout' "+shoutcolor+">"+message+"</span></div>");
+		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+"<span class='time_msgShout'><span>[</span>"+hour+"<span>]</span></span><span class='username_msgShout'>"+username+"</span>:<span class='content_msgShout' style='"+shoutstyle+"'>"+message+"</span></div>");
 	}
 	if(type == 'system') {
-		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+"*<span class='username_msgShout'>"+username+"</span><span class='content_msgShout' "+shoutcolor+">"+message+"</span>*</div>");
+		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+"*<span class='username_msgShout'>"+username+"</span><span class='content_msgShout' style='"+shoutstyle+"'>"+message+"</span>*</div>");
 	}
 	if(cur==0) {
 		if(parseInt(actaimg)) {
@@ -185,26 +204,26 @@ function miunashout() {
 
 	socket.emit('getoldmsg', {ns:numshouts});
 
-	function displayMsg(reqtype, message, username, uidp, uid, gid, colorsht, avatar, nickto, edt, type, key, created, ckold, cur){
+	function displayMsg(reqtype, message, username, uidp, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, type, key, created, ckold, cur){
 		var hour = moment(created).utcOffset(parseInt(zoneset)).format(zoneformt);
 		message = regexmiuna(escapeHtml(revescapeHtml(message))),
 		nums = numshouts;
-		shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,avatar,hour,username,nickto,message,type,ckold,direction,nums,cur);
+		shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,font,size,bold,avatar,hour,username,nickto,message,type,ckold,direction,nums,cur);
 	};
 
-	function checkMsg(req, msg, nick, nickto, uid, gid, colorsht, avatar, uidto, edt, type, _id, created, ckold, cur) {
+	function checkMsg(req, msg, nick, nickto, uid, gid, colorsht, font, size, bold, avatar, uidto, edt, type, _id, created, ckold, cur) {
 		var mtype = 'shout';
-		displayMsg(mtype, msg, nick, uid, uid, gid, colorsht, avatar, nickto, edt, type, _id, created, ckold, cur);
+		displayMsg(mtype, msg, nick, uid, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, type, _id, created, ckold, cur);
 	};
 
 	socket.once('load old msgs', function(docs){
 		if ($("#auto_lod").length) { $("#auto_lod .jGrowl-notification:last-child").remove(); }
 		for (var i = docs.length-1; i >= 0; i--) {
-			checkMsg("msg", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
+			checkMsg("msg", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 		}
 	});
 
 	socket.on('message', function(data){
-		checkMsg("msg", data.msg, data.nick, data.nickto, data.uid, data.gid, data.colorsht, data.avatar, data.uidto, data.edt, data.type, data._id, data.created, 'new', 0);
+		checkMsg("msg", data.msg, data.nick, data.nickto, data.uid, data.gid, data.colorsht, data.font, data.size, data.bold, data.avatar, data.avatar, data.uidto, data.edt, data.type, data._id, data.created, 'new', 0);
 	});
 }
