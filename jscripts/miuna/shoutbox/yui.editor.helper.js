@@ -96,8 +96,7 @@ function upload(file,qse_area) {
 	var xhr = new XMLHttpRequest(); // Create the XHR (Cross-Domain XHR FTW!!!) Thank you sooooo much imgur.com
 	xhr.open("POST", "https://api.imgur.com/3/image.json"); // Boooom!
 	xhr.onload = function() {
-		var code = '[img]' + JSON.parse(xhr.responseText).data.link + '[/img]';
-		editor.insert_text(code,'',qse_area.id);
+		editor.insert_text(JSON.parse(xhr.responseText).data.link,'',qse_area.id);
 		var d = document.querySelector(".yuieditor-button-imgur div.imgurup");
 		d.className = d.className - " imgurup";
 		document.querySelector('input.imgur').remove();
