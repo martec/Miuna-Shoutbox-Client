@@ -21,7 +21,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define('MSB_PLUGIN_VER', '5.3.1');
+define('MSB_PLUGIN_VER', '5.4.0');
 
 function miunashoutbox_info()
 {
@@ -897,6 +897,9 @@ function MSB_newthread()
 		$linklang = $lang->sprintf($lang->miunashoutbox_newthread_lang, $link);
 
 		$baseurl = $settings['miunashout_server'];
+		if (parse_url($baseurl, PHP_URL_SCHEME)!='https') {
+			$baseurl = "https://".$settings['miunashout_server']."";
+		}
 
 		$data = array(
 			"nick" => $name,
@@ -905,20 +908,24 @@ function MSB_newthread()
 			"uid" => $mybb->user['uid'],
 			"gid" => $mybb->user['usergroup'],
 			"colorsht" => $mybb->settings['miunashout_newpt_color'],
+			"bold" => "NaN",
+			"font" => "NaN",
+			"size" => "NaN",
 			"avatar" => $mybb->user['avatar'],
 			"uidto" => "0,". $thread['uid'] ."",
 			"type" => "system"
 		);
 
-		$ch = curl_init($baseurl."/newposthread/");
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Origin: http://'.$_SERVER['HTTP_HOST'].'', 'Content-Type: application/json'));
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-		curl_setopt($ch, CURLOPT_USERPWD, "".$settings['miunashout_server_username'].":".$settings['miunashout_server_password']."");
-		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-		$result = curl_exec($ch);
-		curl_close($ch);
+		$opts = array('http' =>
+			array(
+				'method'  => 'POST',
+				'header'  => array('Content-Type: application/json', 'Authorization: Basic '.base64_encode("".$settings['miunashout_server_username'].":".$settings['miunashout_server_password']."").''),
+				'content' => json_encode($data)
+			)
+		);
+
+		$context = stream_context_create($opts);
+		$result = file_get_contents($baseurl."/newposthread/", false, $context);		
 	}
 }
 
@@ -938,6 +945,9 @@ function MSB_newpost()
 		$linklang = $lang->sprintf($lang->miunashoutbox_newpost_lang, $link);
 
 		$baseurl = $settings['miunashout_server'];
+		if (parse_url($baseurl, PHP_URL_SCHEME)!='https') {
+			$baseurl = "https://".$settings['miunashout_server']."";
+		}
 
 		$data = array(
 			"nick" => $name,
@@ -946,20 +956,24 @@ function MSB_newpost()
 			"uid" => $mybb->user['uid'],
 			"gid" => $mybb->user['usergroup'],
 			"colorsht" => $mybb->settings['miunashout_newpt_color'],
+			"bold" => "NaN",
+			"font" => "NaN",
+			"size" => "NaN",
 			"avatar" => $mybb->user['avatar'],
 			"uidto" => "0,". $thread['uid'] ."",
 			"type" => "system"
 		);
 
-		$ch = curl_init($baseurl."/newposthread/");
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Origin: http://'.$_SERVER['HTTP_HOST'].'', 'Content-Type: application/json'));
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-		curl_setopt($ch, CURLOPT_USERPWD, "".$settings['miunashout_server_username'].":".$settings['miunashout_server_password']."");
-		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-		$result = curl_exec($ch);
-		curl_close($ch);
+		$opts = array('http' =>
+			array(
+				'method'  => 'POST',
+				'header'  => array('Content-Type: application/json', 'Authorization: Basic '.base64_encode("".$settings['miunashout_server_username'].":".$settings['miunashout_server_password']."").''),
+				'content' => json_encode($data)
+			)
+		);
+
+		$context = stream_context_create($opts);
+		$result = file_get_contents($baseurl."/newposthread/", false, $context);
 	}
 }
 
@@ -989,6 +1003,9 @@ function msb_gettoken()
 
 	if ($mybb->input['action'] == "msb_gettoken"){
 		$baseurl = $settings['miunashout_server'];
+		if (parse_url($baseurl, PHP_URL_SCHEME)!='https') {
+			$baseurl = "https://".$settings['miunashout_server']."";
+		}
 
 		$name = format_name($mybb->user['username'], $mybb->user['usergroup'], $mybb->user['displaygroup']);
 
@@ -1000,15 +1017,16 @@ function msb_gettoken()
 			"avatar" => $mybb->user['avatar']
 		);
 
-		$ch = curl_init($baseurl."/gettoken/");
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Origin: http://'.$_SERVER['HTTP_HOST'].'', 'Content-Type: application/json'));
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-		curl_setopt($ch, CURLOPT_USERPWD, "".$settings['miunashout_server_username'].":".$settings['miunashout_server_password']."");
-		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-		echo $result = curl_exec($ch);
-		curl_close($ch);
+		$opts = array('http' =>
+			array(
+				'method'  => 'POST',
+				'header'  => array('Content-Type: application/json', 'Authorization: Basic '.base64_encode("".$settings['miunashout_server_username'].":".$settings['miunashout_server_password']."").''),
+				'content' => json_encode($data)
+			)
+		);
+
+		$context  = stream_context_create($opts);
+		echo $result = file_get_contents($baseurl."/gettoken/", false, $context);
 	}
 }
 
