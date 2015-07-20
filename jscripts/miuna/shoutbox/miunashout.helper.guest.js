@@ -224,6 +224,6 @@ function miunashout() {
 	});
 
 	socket.on('message', function(data){
-		checkMsg("msg", data.msg, data.nick, data.nickto, data.uid, data.gid, data.colorsht, data.font, data.size, data.bold, data.avatar, data.avatar, data.uidto, data.edt, data.type, data._id, data.created, 'new', 0);
+		checkMsg("msg", data.msg, data.nick, data.nickto, data.uid, data.gid, data.colorsht, data.font, data.size, data.bold, data.avatar, data.uidto, data.edt, data.type, data._id, data.created, 'new', 0);
 	});
 }
