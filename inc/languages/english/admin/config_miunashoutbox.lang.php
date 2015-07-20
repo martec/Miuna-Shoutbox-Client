@@ -90,6 +90,8 @@ $l['miunashoutbox_destindx_title'] = 'Hide Miuna Shoutbox in Index page?';
 $l['miunashoutbox_destindx_desc'] = 'Set here if you want hide shoutbox in index or not.';
 $l['miunashoutbox_actport_title'] = 'Show Miuna Shoutbox in Portal page?';
 $l['miunashoutbox_actport_desc'] = 'Set here if you want show shoutbox in portal or not.';
+$l['miunashoutbox_usefsockopen_title'] = 'Use fsockopen instead of curl?';
+$l['miunashoutbox_usefsockopen_desc'] = 'Set here you want active fsockopen instead of curl. If you select yes, Miuna Shoutbox will use fsockopen.';
 $l['miunashoutbox_newpost_lang'] = 'posted in thread {1}';
 $l['miunashoutbox_newthread_lang'] = 'posted new thread {1}';
 ?>

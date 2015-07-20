@@ -21,7 +21,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define('MSB_PLUGIN_VER', '5.4.1');
+define('MSB_PLUGIN_VER', '5.4.2');
 
 function miunashoutbox_info()
 {
@@ -388,6 +388,15 @@ function miunashoutbox_install()
 		'optionscode' => 'yesno',
 		'value' => 0,
 		'disporder' => 37,
+		'gid'		=> $groupid
+	);
+	$miunashout_setting[] = array(
+		'name' => 'miunashout_use_fsockopen',
+		'title' => $lang->miunashoutbox_usefsockopen_title,
+		'description' => $lang->miunashoutbox_usefsockopen_desc,
+		'optionscode' => 'yesno',
+		'value' => 0,
+		'disporder' => 38,
 		'gid'		=> $groupid
 	);
 
@@ -882,6 +891,57 @@ function MiunaShout() {
 
 }
 
+function sendPostDataMSB($type, $data) {
+
+	global $mybb, $settings;
+	
+	$baseurl = $settings['miunashout_server'];
+	if (parse_url($baseurl, PHP_URL_SCHEME)!='https') {
+		$baseurl = "https://".$settings['miunashout_server']."";
+	}
+	if ((int)$settings['miunashout_use_fsockopen']==1) {
+		$data = json_encode($data);
+		$hosturl = parse_url($baseurl, PHP_URL_HOST);
+		$path = "/".$type."";
+		$fp = fsockopen('ssl://'. $hosturl, 443, $errno, $errstr, 30);
+		$http = "POST $path HTTP/1.1\r\n";
+		$http .= "Host: $hosturl\r\n";
+		$http .= "Content-Type: application/json\r\n";
+		$http .= "Authorization: Basic " . base64_encode(''.$settings['miunashout_server_username'].':'.$settings['miunashout_server_password'].'') . "\r\n";
+		$http .= "Content-length: " . strlen($data) . "\r\n";
+		$http .= "Connection: close\r\n\r\n";
+		$http .= $data;
+		fwrite($fp, $http);
+		$lineBreak = 0;
+		while (!feof($fp))
+		{
+			if($lineBreak == 0)
+			while(trim(fgets($fp, 2014)) != "")
+			{
+				$lineBreak = 1;
+				continue;
+			}
+
+			$line = fgets($fp, 1024);
+			$response .= "$line";
+		}
+		return $response;
+	}
+	else {
+		$emiturl = $baseurl."/".$type."";
+		$ch = curl_init($emiturl);
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Origin: http://'.$_SERVER['HTTP_HOST'].'', 'Content-Type: application/json'));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+		curl_setopt($ch, CURLOPT_USERPWD, "".$settings['miunashout_server_username'].":".$settings['miunashout_server_password']."");
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+		$result = curl_exec($ch);
+		curl_close($ch);
+		return $result;
+	}
+}
+
 if ($settings['miunashout_online'] && $settings['miunashout_newthread']) {
 	$plugins->add_hook('newthread_do_newthread_end', 'MSB_newthread');
 }
@@ -895,11 +955,6 @@ function MSB_newthread()
 		$name = format_name($mybb->user['username'], $mybb->user['usergroup'], $mybb->user['displaygroup']);
 		$link = '[url=' . $settings['bburl'] . '/' . get_thread_link($tid) . ']' . $mybb->input['subject'] . '[/url]';
 		$linklang = $lang->sprintf($lang->miunashoutbox_newthread_lang, $link);
-
-		$baseurl = $settings['miunashout_server'];
-		if (parse_url($baseurl, PHP_URL_SCHEME)!='https') {
-			$baseurl = "https://".$settings['miunashout_server']."";
-		}
 
 		$data = array(
 			"nick" => $name,
@@ -915,17 +970,8 @@ function MSB_newthread()
 			"uidto" => "0,". $thread['uid'] ."",
 			"type" => "system"
 		);
-
-		$opts = array('http' =>
-			array(
-				'method'  => 'POST',
-				'header'  => array('Content-Type: application/json', 'Authorization: Basic '.base64_encode("".$settings['miunashout_server_username'].":".$settings['miunashout_server_password']."").''),
-				'content' => json_encode($data)
-			)
-		);
-
-		$context = stream_context_create($opts);
-		$result = file_get_contents($baseurl."/newposthread/", false, $context);		
+		
+		sendPostDataMSB('newposthread', $data);
 	}
 }
 
@@ -944,11 +990,6 @@ function MSB_newpost()
 		$link = '[url=' . $settings['bburl'] . '/' . $MSB_url . ']' . $thread['subject'] . '[/url]';
 		$linklang = $lang->sprintf($lang->miunashoutbox_newpost_lang, $link);
 
-		$baseurl = $settings['miunashout_server'];
-		if (parse_url($baseurl, PHP_URL_SCHEME)!='https') {
-			$baseurl = "https://".$settings['miunashout_server']."";
-		}
-
 		$data = array(
 			"nick" => $name,
 			"msg" => $linklang,
@@ -964,16 +1005,7 @@ function MSB_newpost()
 			"type" => "system"
 		);
 
-		$opts = array('http' =>
-			array(
-				'method'  => 'POST',
-				'header'  => array('Content-Type: application/json', 'Authorization: Basic '.base64_encode("".$settings['miunashout_server_username'].":".$settings['miunashout_server_password']."").''),
-				'content' => json_encode($data)
-			)
-		);
-
-		$context = stream_context_create($opts);
-		$result = file_get_contents($baseurl."/newposthread/", false, $context);
+		sendPostDataMSB('newposthread', $data);
 	}
 }
 
@@ -1002,11 +1034,6 @@ function msb_gettoken()
 	}
 
 	if ($mybb->input['action'] == "msb_gettoken"){
-		$baseurl = $settings['miunashout_server'];
-		if (parse_url($baseurl, PHP_URL_SCHEME)!='https') {
-			$baseurl = "https://".$settings['miunashout_server']."";
-		}
-
 		$name = format_name($mybb->user['username'], $mybb->user['usergroup'], $mybb->user['displaygroup']);
 
 		$data = array(
@@ -1017,16 +1044,7 @@ function msb_gettoken()
 			"avatar" => $mybb->user['avatar']
 		);
 
-		$opts = array('http' =>
-			array(
-				'method'  => 'POST',
-				'header'  => array('Content-Type: application/json', 'Authorization: Basic '.base64_encode("".$settings['miunashout_server_username'].":".$settings['miunashout_server_password']."").''),
-				'content' => json_encode($data)
-			)
-		);
-
-		$context  = stream_context_create($opts);
-		echo $result = file_get_contents($baseurl."/gettoken/", false, $context);
+		echo sendPostDataMSB('gettoken', $data);
 	}
 }
 
