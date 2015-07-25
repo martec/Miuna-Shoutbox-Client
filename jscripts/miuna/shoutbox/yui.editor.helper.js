@@ -17,6 +17,9 @@ function fontsizebutgen(qse_area) {
 			'<div id="yuieditor-size_'+qse_area+'_popup" class="yuieditor-dropdown yuieditor-fontsize-picker" style="display: none;"><div>'+
 			'</div>';
 }
+function colorbutgen(qse_area) {
+	return '<a class="yuieditor-button yuieditor-button-color" id="yuieditor-color_'+qse_area+'" title="'+yuivar['Font Color']+'"><div></div></a>';
+}
 function savsty(type,id) {
 	sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
 	if (!sb_sty) {
@@ -54,7 +57,11 @@ $(document).ready(function() {
 	buttons('shout_text');
 	$('#yuieditor-font_shout_text').popupMenu();
 	$('#yuieditor-size_shout_text').popupMenu();
+	$('#yuieditor-color_shout_text').popupMenu();
 	$('#yuieditor-emoticons_shout_text').popupMenu(false);
+	$('.color_palette_placeholder_shout_text').each(function() {
+		registerPalette($(this),$(this).attr('data-local'));
+	});
 	function buttons(qse_area) {
 		if (parseInt(actbold)) {
 			but = '<a class="yuieditor-button yuieditor-button-bold" accesskey="b" onclick="savbold()" title="'+yuivar.Bold+'"><div></div></a>';
@@ -71,6 +78,9 @@ $(document).ready(function() {
 			for (var i = 0; i < size_rls.length; i++) {
 				$('#yuieditor-size_'+qse_area+'_popup div').append('<a class="yuieditor-fontsize-option" onclick="savsty(\'size\',\''+i+'\')"><font>'+size_rls[i].trim()+' px</font></a>');
 			}
+		}
+		if (parseInt(actcolor)) {
+			$(colorbutgen(qse_area)).appendTo('.yuieditor-group_'+qse_area+':last');
 		}
 		$(simpbutgen('spoiler','s','spoiler',1,'',qse_area,spo_lan)).appendTo('.yuieditor-group_'+qse_area+':last');
 		$(emotbutgen(qse_area)).appendTo('.yuieditor-group_'+qse_area+':last');

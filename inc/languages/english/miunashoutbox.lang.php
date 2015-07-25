@@ -52,6 +52,7 @@ $l['miunashoutbox_sound_msg'] = 'Sound';
 $l['miunashoutbox_volume_msg'] = 'Volume';
 $l['miunashoutbox_vmin_msg'] = 'Min';
 $l['miunashoutbox_vmax_msg'] = 'Max';
+$l['miunashoutbox_mentsound_msg'] = 'Only on @ replies';
 $l['miunashoutbox_log_html'] = 'Generate HTML';
 $l['miunashoutbox_log_msg'] = 'Archive';
 $l['miunashoutbox_log_shout'] = 'Archive of Shoutbox';

@@ -86,6 +86,11 @@ $l['miunashoutbox_deststyl_title'] = 'Desactive style select?';
 $l['miunashoutbox_deststyl_desc'] = 'Set if you want desactive style.';
 $l['miunashoutbox_dcln_title'] = 'Disable style in username?';
 $l['miunashoutbox_dcln_desc'] = 'Set if you want disable style in username. If you select yes, Miuna Shoutbox will disable style in username.';
+$l['miunashoutbox_dvol_title'] = 'Default volume';
+$l['miunashoutbox_dvol_desc'] = 'Choice default volume.';
+$l['miunashoutbox_dvol_opt'] = '0=Min
+0.5=Medium
+1=Max';
 $l['miunashoutbox_destindx_title'] = 'Hide Miuna Shoutbox in Index page?';
 $l['miunashoutbox_destindx_desc'] = 'Set here if you want hide shoutbox in index or not.';
 $l['miunashoutbox_actport_title'] = 'Show Miuna Shoutbox in Portal page?';

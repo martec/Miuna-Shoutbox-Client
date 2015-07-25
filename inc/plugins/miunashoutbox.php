@@ -21,7 +21,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define('MSB_PLUGIN_VER', '5.4.2');
+define('MSB_PLUGIN_VER', '5.5.0');
 
 function miunashoutbox_info()
 {
@@ -373,12 +373,22 @@ function miunashoutbox_install()
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
+		'name' => 'miunashout_def_vol',
+		'title' => $lang->miunashoutbox_dvol_title,
+		'description' => $lang->miunashoutbox_dvol_desc,
+		'optionscode' => 'radio
+'.$lang->miunashoutbox_dvol_opt.'',
+		'value' => '0',
+		'disporder' => 36,
+		'gid'		=> $groupid
+	);
+	$miunashout_setting[] = array(
 		'name' => 'miunashout_des_index',
 		'title' => $lang->miunashoutbox_destindx_title,
 		'description' => $lang->miunashoutbox_destindx_desc,
 		'optionscode' => 'yesno',
 		'value' => 0,
-		'disporder' => 36,
+		'disporder' => 37,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -387,7 +397,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_actport_desc,
 		'optionscode' => 'yesno',
 		'value' => 0,
-		'disporder' => 37,
+		'disporder' => 38,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -396,7 +406,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_usefsockopen_desc,
 		'optionscode' => 'yesno',
 		'value' => 0,
-		'disporder' => 38,
+		'disporder' => 39,
 		'gid'		=> $groupid
 	);
 
@@ -458,7 +468,8 @@ function miunashoutbox_activate()
 	miuna_smilies = {
 		{\$smilies_json}
 	},
-	fontype = fontsize = fontbold = '',
+	fontype = fontsize = fontbold = colorshout = '',
+	shoutvol = '{\$mybb->settings['miunashout_def_vol']}',
 	iclid = '{\$mybb->settings['miunashout_imgurapi']}',
 	maxnamelength = '{\$mybb->settings['maxnamelength']}',
 	msbfontsize = '{\$mybb->settings['miunashout_styles_size']}',
@@ -512,6 +523,7 @@ function miunashoutbox_activate()
 	volume_lan = '{\$lang->miunashoutbox_volume_msg}',
 	min_lan = '{\$lang->miunashoutbox_vmin_msg}',
 	max_lan = '{\$lang->miunashoutbox_vmax_msg}',
+	ment_sound = '{\$lang->miunashoutbox_mentsound_msg}',
 	perm_msglan = '{\$lang->miunashoutbox_user_permission}',
 	numshouts = '{\$mybb->settings['miunashout_num_shouts']}',
 	direction = '{\$mybb->settings['miunashout_shouts_start']}',
@@ -606,7 +618,6 @@ function miunashoutbox_activate()
 <script type=\"text/javascript\">
 <!--
 	var msbvar = {mybbuid:'{\$mybb->user['uid']}', mybbusername:'{\$lang->guest}', mybbavatar:'{\$mybb->user['avatar']}', mybbusergroup:'{\$mybb->user['usergroup']}', miunamodgroups:'{\$mybb->settings['miunashout_mod_grups']}', msblc:'{\$mybb->settings['miunashout_lim_character']}', floodtime:'{\$mybb->settings['miunashout_antiflood']}'},
-	fontype = fontsize = fontbold = '',
 	msbfontsize = '{\$mybb->settings['miunashout_styles_size']}',
 	msbfontype = '{\$mybb->settings['miunashout_styles_font']}',
 	spo_lan = '{\$lang->miunashoutbox_spoiler}',

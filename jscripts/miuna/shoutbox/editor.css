@@ -33,6 +33,11 @@ textarea.editorShout {
   background-position:  0px -448px;
     
 }
+.yuieditor-button-color div {
+    
+  background-position:  0px -528px;
+    
+}
 .yuieditor-emoticons img {
     cursor: pointer;
 	padding: 1px;
@@ -220,4 +225,11 @@ div.yuieditor-group {
 
   background-image:url(spinner.gif) !important;
   
+}
+.colour-palette tr td {
+	border-bottom-left-radius: 0px !important;
+	border-bottom-right-radius: 0px !important;
+}
+#sbut {
+	line-height: 1.4;
 }

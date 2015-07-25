@@ -378,11 +378,10 @@ function miunashout_connect_token(token) {
 function miunashout(socket) {
 	var notban = '1',
 	flooddetect,
-	colorshout = '',
-	shoutvol = '0',
 	usrlist = '',
 	uidlist = '',
 	pmdata = '',
+	mentsound = 0,
 	connected = false;
 
 	if (parseInt(numshouts)>100) {
@@ -419,6 +418,7 @@ function miunashout(socket) {
 	sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
 	if (sb_sty) {
 		shoutvol = sb_sty['sound'];
+		mentsound = sb_sty['mentsound'];
 	}
 
 	function addParticipantsMessage (data) {
@@ -640,6 +640,11 @@ function miunashout(socket) {
 			$("[data-uid="+uid+"]").find(".time_msgShout span").css("color",on_color);
 		}
 		if (regexment(message,msbvar.mybbusername)) {
+			if(parseFloat(shoutvol) && parseInt(mentsound) && ckold=="new") {
+				var sound = new Audio(rootpath + '/jscripts/miuna/shoutbox/msb_sound.mp3');
+				sound.volume = parseFloat(shoutvol);
+				sound.play();
+			}
 			$("div."+key+"").css("border-left",ment_borderstyle).attr( "data-ment", "yes" );
 			setTimeout(function() {
 				if ($('.shoutarea').children("[data-ment=yes]").length) {
@@ -697,7 +702,7 @@ function miunashout(socket) {
 	});
 
 	socket.on('message', function(data){
-		if(parseFloat(shoutvol)) {
+		if(parseFloat(shoutvol) && !parseInt(mentsound)) {
 			var sound = new Audio(rootpath + '/jscripts/miuna/shoutbox/msb_sound.mp3');
 			sound.volume = parseFloat(shoutvol);
 			sound.play();
@@ -738,6 +743,11 @@ function miunashout(socket) {
 			}
 		}
 		if (menttest) {
+			if(parseInt(mentsound)) {
+				var sound = new Audio(rootpath + '/jscripts/miuna/shoutbox/msb_sound.mp3');
+				sound.volume = parseFloat(shoutvol);
+				sound.play();
+			}
 			$("div."+key+"").css("border-left",ment_borderstyle).attr( "data-ment", "yes" );
 			setTimeout(function() {
 				document.title = '('+$('.shoutarea').children("[data-ment=yes]").length+') '+orgtit+'';
@@ -1125,8 +1135,12 @@ function miunashout(socket) {
 	});
 
 	function soundfunc() {
-		heightwin = 120;
-		$('body').append( '<div class="sound"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+sound_lan+'</strong></div></td></tr><tr><td class="tcat">'+volume_lan+':</td></tr><tr><td class="trow1" style="text-align:center;">'+min_lan+'<input id="s_volume" type="range" min="0" max="1" step="0.05" value="'+shoutvol+'"/>'+max_lan+'</td></tr></table></div><td></div>' );
+		heightwin = 140;
+		checked = '';
+		if (mentsound) {
+			checked = 'checked';
+		}
+		$('body').append( '<div class="sound"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+sound_lan+'</strong></div></td></tr><tr><td class="tcat">'+volume_lan+':</td></tr><tr><td class="trow1" style="text-align:center;">'+min_lan+'<input id="s_volume" type="range" min="0" max="1" step="0.05" value="'+parseFloat(shoutvol)+'"/>'+max_lan+'</td></tr><tr><td class="trow1"><input type="checkbox" id="mentsound" '+checked+'>'+ment_sound+'</td></tr></table></div><td></div>' );
 		var soundinput = document.getElementById("s_volume");
 		soundinput.addEventListener("input", function() {
 			var sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
@@ -1135,8 +1149,24 @@ function miunashout(socket) {
 			}
 			sb_sty['sound'] = soundinput.value;
 			localStorage.setItem('sb_col_ft', JSON.stringify(sb_sty));
-			shoutvol = soundinput.value;
+			shoutvol = parseFloat(soundinput.value);
 		}, false);
+		var mentsoundinput = document.getElementById("mentsound");
+		mentsoundinput.addEventListener("change", function() {
+			var sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
+			if (!sb_sty) {
+				sb_sty = {};
+			}
+			if (mentsoundinput.checked) {
+				sb_sty['mentsound'] = 1;
+				mentsound = 1;
+			} 
+			else {
+				sb_sty['mentsound'] = 0;
+				mentsound = 0;
+			}
+			localStorage.setItem('sb_col_ft', JSON.stringify(sb_sty));
+		}, false);		
 		$('.sound').modal({ zIndex: 7 });
 	}
 
@@ -1156,24 +1186,6 @@ function miunashout(socket) {
 			pmlfunc(docs);
 		});
 	});
-
-	if (parseInt(actcolor)) {
-		colorpicker = '<input type="color" value="'+colorshout+'" id="font_color">';
-		$(colorpicker).appendTo('.yuieditor-group_shout_text:last');
-
-		var theInput = document.getElementById("font_color");
-		theInput.addEventListener("input", function() {
-			var sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
-			if (!sb_sty) {
-				sb_sty = {};
-			}
-			sb_sty['color'] = theInput.value;
-			localStorage.setItem('sb_col_ft', JSON.stringify(sb_sty));
-			if (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(theInput.value)) {
-				colorshout = theInput.value;
-			}
-		}, false);
-	}
 
 	log = '<a class="yuieditor-button" id="log" title="'+log_msglan+'"><div style="background-image: url('+rootpath+'/images/log.png); opacity: 1; cursor: pointer;">'+log_msglan+'</div></a>';
 	$(log).appendTo('.yuieditor-group_shout_text:last');
