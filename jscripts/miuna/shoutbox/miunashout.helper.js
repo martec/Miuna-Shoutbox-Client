@@ -381,6 +381,7 @@ function miunashout(socket) {
 	usrlist = '',
 	uidlist = '',
 	pmdata = '',
+	sb_ign_lst = '',
 	mentsound = 0,
 	connected = false;
 
@@ -420,6 +421,11 @@ function miunashout(socket) {
 		shoutvol = sb_sty['sound'];
 		mentsound = sb_sty['mentsound'];
 	}
+
+	sb_ign = JSON.parse(localStorage.getItem('sb_ign_lst'));
+	if (sb_ign) {
+		sb_ign_lst = sb_ign['list'];
+	}	
 
 	function addParticipantsMessage (data) {
 		$('.actusr').text(''+usractlan+' '+Object.keys(data.usernames).length+'');
@@ -632,6 +638,12 @@ function miunashout(socket) {
 			}
 			else {
 				nums = msbvar.mpp;
+			}
+		}
+
+		if (sb_ign_lst) {
+			if ($.inArray(parseInt(uid), sb_ign_lst.split(',').map(function(ignlist){return Number(ignlist);}))!=-1) {
+				message = ign_msglan;
 			}
 		}
 
@@ -1185,6 +1197,32 @@ function miunashout(socket) {
 		socket.once('getpml', function (docs) {
 			pmlfunc(docs);
 		});
+	});
+
+	function ignusr(list) {
+		heightwin = 120;
+		$('body').append( '<div class="ignlist"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+ign_titlan+':</strong></div></td></tr><td class="trow1"><textarea id="ign_list" style="width:97%;height: '+heightwin*0.3+'px;" >'+list+'</textarea></td></table></div><td><button id="sv_ignlist" style="margin:4px;">'+shout_savelan+'</button></td></div>' );
+		$('.ignlist').modal({ zIndex: 7 });
+	}
+
+	ignbut = '<a class="yuieditor-button" id="ignusr" title="'+ign_titlan+'"><div style="background-image: url('+rootpath+'/images/ignore.png); opacity: 1; cursor: pointer;">'+ign_titlan+'</div></a>';
+	$(ignbut).appendTo('.yuieditor-group_shout_text:last');
+
+	($.fn.on || $.fn.live).call($(document), 'click', '#ignusr', function (e) {
+		ignusr(sb_ign_lst);
+	});
+
+	($.fn.on || $.fn.live).call($(document), 'click', '#sv_ignlist', function (e) {
+		e.preventDefault();
+		var newlist = escapeHtml($('#ign_list').val());
+		var sb_ign = JSON.parse(localStorage.getItem('sb_ign_lst'));
+		if (!sb_ign) {
+			sb_ign = {};
+		}
+		sb_ign['list'] = newlist;
+		localStorage.setItem('sb_ign_lst', JSON.stringify(sb_ign));
+		sb_ign_lst = newlist;
+		$.modal.close();
 	});
 
 	log = '<a class="yuieditor-button" id="log" title="'+log_msglan+'"><div style="background-image: url('+rootpath+'/images/log.png); opacity: 1; cursor: pointer;">'+log_msglan+'</div></a>';

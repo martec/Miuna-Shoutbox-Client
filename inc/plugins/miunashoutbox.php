@@ -21,7 +21,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define('MSB_PLUGIN_VER', '5.5.0');
+define('MSB_PLUGIN_VER', '5.7.0');
 
 function miunashoutbox_info()
 {
@@ -213,7 +213,7 @@ function miunashoutbox_install()
 		'name' => 'miunashout_folder_acc',
 		'title' => $lang->miunashoutbox_foldacc_title,
 		'description' => $lang->miunashoutbox_foldacc_desc,
-		'optionscode' => 'text',
+		'optionscode' => 'forumselect',
 		'value' => '',
 		'disporder' => 18,
 		'gid'		=> $groupid
@@ -502,6 +502,8 @@ function miunashoutbox_activate()
 	log_nextlan = '{\$lang->miunashoutbox_log_next}',
 	log_backlan = '{\$lang->miunashoutbox_log_back}',
 	prune_shoutlan = '{\$lang->miunashoutbox_prune_shout}',
+	ign_titlan = '{\$lang->miunashoutbox_ign_sys}',
+	ign_msglan = '{\$lang->miunashoutbox_ign_usr}',
 	ban_msglan = '{\$lang->miunashoutbox_ban_msg}',
 	ban_unban_lan = '{\$lang->miunashoutbox_ban_unban}',
 	no_ban_usrlan = '{\$lang->miunashoutbox_no_banusr}',
@@ -907,6 +909,9 @@ function sendPostDataMSB($type, $data) {
 	global $mybb, $settings;
 	
 	$baseurl = $settings['miunashout_server'];
+	if (parse_url($baseurl, PHP_URL_SCHEME)=='http') {
+		$baseurl = "https://".parse_url($baseurl, PHP_URL_HOST)."";
+	}
 	if (parse_url($baseurl, PHP_URL_SCHEME)!='https') {
 		$baseurl = "https://".$settings['miunashout_server']."";
 	}
