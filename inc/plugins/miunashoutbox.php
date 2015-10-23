@@ -21,7 +21,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define('MSB_PLUGIN_VER', '5.7.0');
+define('MSB_PLUGIN_VER', '6.0.0');
 
 function miunashoutbox_info()
 {
@@ -147,21 +147,12 @@ function miunashoutbox_install()
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
-		'name' => 'miunashout_server_username',
-		'title' => $lang->miunashoutbox_serusr_title,
-		'description' => $lang->miunashoutbox_serusr_desc,
+		'name' => 'miunashout_secret',
+		'title' => $lang->miunashoutbox_secret_title,
+		'description' => $lang->miunashoutbox_secret_desc,
 		'optionscode' => 'text',
 		'value' => '',
 		'disporder' => 11,
-		'gid'		=> $groupid
-	);
-	$miunashout_setting[] = array(
-		'name' => 'miunashout_server_password',
-		'title' => $lang->miunashoutbox_serpass_title,
-		'description' => $lang->miunashoutbox_serpass_desc,
-		'optionscode' => 'text',
-		'value' => '',
-		'disporder' => 12,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -170,7 +161,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_imgur_desc,
 		'optionscode' => 'text',
 		'value' => '',
-		'disporder' => 13,
+		'disporder' => 12,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -179,7 +170,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_dataf_desc,
 		'optionscode' => 'text',
 		'value' => 'DD/MM hh:mm A',
-		'disporder' => 14,
+		'disporder' => 13,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -188,7 +179,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_antiflood_desc,
 		'optionscode' => 'numeric',
 		'value' => '0',
-		'disporder' => 15,
+		'disporder' => 14,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -197,7 +188,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_newpost_desc,
 		'optionscode' => 'yesno',
 		'value' => 1,
-		'disporder' => 16,
+		'disporder' => 15,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -206,7 +197,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_newthread_desc,
 		'optionscode' => 'yesno',
 		'value' => 1,
-		'disporder' => 17,
+		'disporder' => 16,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -215,7 +206,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_foldacc_desc,
 		'optionscode' => 'forumselect',
 		'value' => '',
-		'disporder' => 18,
+		'disporder' => 17,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -224,7 +215,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_newptcolor_desc,
 		'optionscode' => 'text',
 		'value' => '#727272',
-		'disporder' => 19,
+		'disporder' => 18,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -233,7 +224,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_oncolor_desc,
 		'optionscode' => 'text',
 		'value' => 'green',
-		'disporder' => 20,
+		'disporder' => 19,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -242,7 +233,7 @@ function miunashoutbox_install()
 		'description'	=> $lang->miunashoutbox_mention_desc,
 		'optionscode'	=> 'onoff',
 		'value'		=> '1',
-		'disporder'	=> 21,
+		'disporder'	=> 20,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -251,7 +242,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_mentstyle_desc,
 		'optionscode' => 'text',
 		'value' => '5px solid #cd0e0a',
-		'disporder' => 22,
+		'disporder' => 21,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -260,7 +251,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_edtcolor_desc,
 		'optionscode' => 'text',
 		'value' => '#f5caca',
-		'disporder' => 23,
+		'disporder' => 22,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -269,7 +260,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_zone_desc,
 		'optionscode' => 'text',
 		'value' => '-3',
-		'disporder' => 24,
+		'disporder' => 23,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -279,7 +270,7 @@ function miunashoutbox_install()
 		'optionscode' => 'radio
 '.$lang->miunashoutbox_shoutstart_opt.'',
 		'value' => 'bottom',
-		'disporder' => 25,
+		'disporder' => 24,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -288,7 +279,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_actaimg_desc,
 		'optionscode' => 'yesno',
 		'value' => 0,
-		'disporder' => 26,
+		'disporder' => 25,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -297,16 +288,16 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_aimgrepl_desc,
 		'optionscode' => 'textarea',
 		'value' => '',
-		'disporder' => 27,
+		'disporder' => 26,
 		'gid'		=> $groupid
-	);	
+	);
 	$miunashout_setting[] = array(
 		'name' => 'miunashout_lim_character',
 		'title' => $lang->miunashoutbox_limcharact_title,
 		'description' => $lang->miunashoutbox_limcharact_desc,
 		'optionscode' => 'numeric',
 		'value' => 0,
-		'disporder' => 28,
+		'disporder' => 27,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -315,7 +306,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_aavatar_desc,
 		'optionscode' => 'yesno',
 		'value' => 1,
-		'disporder' => 29,
+		'disporder' => 28,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -324,7 +315,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_acolor_desc,
 		'optionscode' => 'yesno',
 		'value' => 1,
-		'disporder' => 30,
+		'disporder' => 29,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -333,7 +324,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_acbold_desc,
 		'optionscode' => 'yesno',
 		'value' => 1,
-		'disporder' => 31,
+		'disporder' => 30,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -342,7 +333,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_stfont_desc,
 		'optionscode' => 'textarea',
 		'value' => 'Arial,Arial Black,Comic Sans MS,Courier New,Georgia,Impact,Sans-serif,Serif,Times New Roman,Trebuchet MS,Verdana',
-		'disporder' => 32,
+		'disporder' => 31,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -351,7 +342,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_sizfont_desc,
 		'optionscode' => 'textarea',
 		'value' => '11,12,13',
-		'disporder' => 33,
+		'disporder' => 32,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -360,16 +351,16 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_deststyl_desc,
 		'optionscode' => 'yesno',
 		'value' => 0,
-		'disporder' => 34,
+		'disporder' => 33,
 		'gid'		=> $groupid
-	);	
+	);
 	$miunashout_setting[] = array(
 		'name' => 'miunashout_dis_colorusrn',
 		'title' => $lang->miunashoutbox_dcln_title,
 		'description' => $lang->miunashoutbox_dcln_desc,
 		'optionscode' => 'yesno',
 		'value' => 0,
-		'disporder' => 35,
+		'disporder' => 34,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -379,7 +370,7 @@ function miunashoutbox_install()
 		'optionscode' => 'radio
 '.$lang->miunashoutbox_dvol_opt.'',
 		'value' => '0',
-		'disporder' => 36,
+		'disporder' => 35,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -388,7 +379,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_destindx_desc,
 		'optionscode' => 'yesno',
 		'value' => 0,
-		'disporder' => 37,
+		'disporder' => 36,
 		'gid'		=> $groupid
 	);
 	$miunashout_setting[] = array(
@@ -397,16 +388,7 @@ function miunashoutbox_install()
 		'description' => $lang->miunashoutbox_actport_desc,
 		'optionscode' => 'yesno',
 		'value' => 0,
-		'disporder' => 38,
-		'gid'		=> $groupid
-	);
-	$miunashout_setting[] = array(
-		'name' => 'miunashout_use_fsockopen',
-		'title' => $lang->miunashoutbox_usefsockopen_title,
-		'description' => $lang->miunashoutbox_usefsockopen_desc,
-		'optionscode' => 'yesno',
-		'value' => 0,
-		'disporder' => 39,
+		'disporder' => 37,
 		'gid'		=> $groupid
 	);
 
@@ -487,9 +469,6 @@ function miunashoutbox_activate()
 	connectlang = '{\$lang->miunashoutbox_connect}',
 	logofflang = '{\$lang->miunashoutbox_logoff}',
 	aloadlang = '{\$lang->miunashoutbox_auto_load}',
-	invtoklang = '{\$lang->miunashoutbox_inv_token}',
-	eregp = '{\$lang->miunashoutbox_error_regp}',
-	eregn = '{\$lang->miunashoutbox_error_regn}',
 	usractlan = '{\$lang->miunashoutbox_user_ative}',
 	mes_emptylan = '{\$lang->miunashoutbox_mes_empty}',
 	usr_banlang = '{\$lang->miunashoutbox_user_banned}',
@@ -904,10 +883,34 @@ function MiunaShout() {
 
 }
 
+function msb_token_gen() {
+
+	global $mybb, $settings;
+	include_once "rin/JWT.php";
+
+	$name = format_name($mybb->user['username'], $mybb->user['usergroup'], $mybb->user['displaygroup']);
+
+	$msbmod = '0';
+
+	if(in_array((int)$mybb->user['usergroup'],explode(',',$mybb->settings['miunashout_mod_grups']))) {
+		$msbmod = '1';
+	}
+
+	$data = array(
+		"user" => $name,
+		"uid" => $mybb->user['uid'],
+		"gid" => $mybb->user['usergroup'],
+		"mod" => $msbmod,
+		"avatar" => $mybb->user['avatar']
+	);
+
+	return JWT::encode($data, $settings['miunashout_secret']);
+}
+
 function sendPostDataMSB($type, $data) {
 
 	global $mybb, $settings;
-	
+
 	$baseurl = $settings['miunashout_server'];
 	if (parse_url($baseurl, PHP_URL_SCHEME)=='http') {
 		$baseurl = "https://".parse_url($baseurl, PHP_URL_HOST)."";
@@ -915,47 +918,15 @@ function sendPostDataMSB($type, $data) {
 	if (parse_url($baseurl, PHP_URL_SCHEME)!='https') {
 		$baseurl = "https://".$settings['miunashout_server']."";
 	}
-	if ((int)$settings['miunashout_use_fsockopen']==1) {
-		$data = json_encode($data);
-		$hosturl = parse_url($baseurl, PHP_URL_HOST);
-		$path = "/".$type."";
-		$fp = fsockopen('ssl://'. $hosturl, 443, $errno, $errstr, 30);
-		$http = "POST $path HTTP/1.1\r\n";
-		$http .= "Host: $hosturl\r\n";
-		$http .= "Content-Type: application/json\r\n";
-		$http .= "Authorization: Basic " . base64_encode(''.$settings['miunashout_server_username'].':'.$settings['miunashout_server_password'].'') . "\r\n";
-		$http .= "Content-length: " . strlen($data) . "\r\n";
-		$http .= "Connection: close\r\n\r\n";
-		$http .= $data;
-		fwrite($fp, $http);
-		$lineBreak = 0;
-		while (!feof($fp))
-		{
-			if($lineBreak == 0)
-			while(trim(fgets($fp, 2014)) != "")
-			{
-				$lineBreak = 1;
-				continue;
-			}
-
-			$line = fgets($fp, 1024);
-			$response .= "$line";
-		}
-		return $response;
-	}
-	else {
-		$emiturl = $baseurl."/".$type."";
-		$ch = curl_init($emiturl);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Origin: http://'.$_SERVER['HTTP_HOST'].'', 'Content-Type: application/json'));
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-		curl_setopt($ch, CURLOPT_USERPWD, "".$settings['miunashout_server_username'].":".$settings['miunashout_server_password']."");
-		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-		$result = curl_exec($ch);
-		curl_close($ch);
-		return $result;
-	}
+	$emiturl = $baseurl."/".$type."";
+	$ch = curl_init($emiturl);
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Origin: http://'.$_SERVER['HTTP_HOST'].'', 'Content-Type: application/json'));
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+	$result = curl_exec($ch);
+	curl_close($ch);
+	return $result;
 }
 
 if ($settings['miunashout_online'] && $settings['miunashout_newthread']) {
@@ -984,9 +955,10 @@ function MSB_newthread()
 			"size" => "NaN",
 			"avatar" => $mybb->user['avatar'],
 			"uidto" => "0,". $thread['uid'] ."",
-			"type" => "system"
+			"type" => "system",
+			"token" => msb_token_gen()
 		);
-		
+
 		sendPostDataMSB('newposthread', $data);
 	}
 }
@@ -1018,7 +990,8 @@ function MSB_newpost()
 			"size" => "NaN",
 			"avatar" => $mybb->user['avatar'],
 			"uidto" => "0,". $thread['uid'] ."",
-			"type" => "system"
+			"type" => "system",
+			"token" => msb_token_gen()
 		);
 
 		sendPostDataMSB('newposthread', $data);
@@ -1043,24 +1016,9 @@ function msb_gettoken()
 		xmlhttp_error($lang->invalid_post_code);
 	}
 
-	$msbmod = '0';
-
-	if(in_array((int)$mybb->user['usergroup'],explode(',',$mybb->settings['miunashout_mod_grups']))) {
-		$msbmod = '1';
-	}
-
 	if ($mybb->input['action'] == "msb_gettoken"){
-		$name = format_name($mybb->user['username'], $mybb->user['usergroup'], $mybb->user['displaygroup']);
-
-		$data = array(
-			"user" => $name,
-			"uid" => $mybb->user['uid'],
-			"gid" => $mybb->user['usergroup'],
-			"mod" => $msbmod,
-			"avatar" => $mybb->user['avatar']
-		);
-
-		echo sendPostDataMSB('gettoken', $data);
+		$arraytoken = array('token' => msb_token_gen());
+		echo json_encode($arraytoken);
 	}
 }
 

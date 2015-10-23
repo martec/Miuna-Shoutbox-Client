@@ -263,29 +263,7 @@ function miunashout_connect() {
 				IS_JSON = false;
 			}
 			if (IS_JSON) {
-				if (JSON.parse(result).token) {
-					miunashout_connect_token(JSON.parse(result).token);
-				}
-				if (JSON.parse(result).error) {
-					if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
-					if (JSON.parse(result).error=='admpassinc') {
-						if(!$('#incadm_pass').length) {
-							$('<div/>', { id: 'incadm_pass', class: 'top-right' }).appendTo('body');
-						}
-						setTimeout(function() {
-							$('#incadm_pass').jGrowl(eregp, { life: 1500 });
-						},200);
-					}
-					if (JSON.parse(result).error=='admusarinc') {
-						if(!$('#incadm_user').length) {
-							$('<div/>', { id: 'incadm_user', class: 'top-right' }).appendTo('body');
-						}
-						setTimeout(function() {
-							$('#incadm_user').jGrowl(eregn, { life: 1500 });
-						},200);
-					}
-					miunashout_connecticon();
-				}
+				miunashout_connect_token(JSON.parse(result).token);
 			}
 			else {
 				if(typeof result == 'object')
@@ -338,41 +316,27 @@ function miunashout_connecticon() {
 
 function miunashout_connect_token(token) {
 
-	socket = io.connect(socketaddress+'/member', { 'forceNew': true });
-	socket.on('authenticated', function () {
-		socket.once('ckusr', function (data) {
-			if (data=='ok') {
-				if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
-				conelem = document.getElementById("msb_connect");
-				if (conelem) { conelem.parentElement.removeChild(conelem); }
-				miunashout(socket);
-			}
-			else {
-				if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
-				miunashout_connecticon();
-				socket.disconnect();
-				if(!$('#usr_ban').length) {
-					$('<div/>', { id: 'usr_ban', class: 'top-right' }).appendTo('body');
-				}
-				setTimeout(function() {
-					$('#usr_ban').jGrowl(usr_banlang, { life: 1500 });
-				},200);
-			}
-		});
-	})
-	.emit('authenticate', {token: token}) //send the jwt
-	.on("unauthorized", function(error) {
-		if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
-		socket.disconnect();
-		if(!$('#inv_alert').length) {
-			$('<div/>', { id: 'inv_alert', class: 'top-right' }).appendTo('body');
+	query = 'token=' + token;
+	socket = io.connect(socketaddress+'/member', { 'forceNew': false, transports: ['websocket'], query: query });
+	socket.once('ckusr', function (data) {
+		if (data=='ok') {
+			if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+			conelem = document.getElementById("msb_connect");
+			if (conelem) { conelem.parentElement.removeChild(conelem); }
+			miunashout(socket);
 		}
-		setTimeout(function() {
-			$('#inv_alert').jGrowl(invtoklang, { life: 1500 });
-		},200);
-		miunashout_connecticon();
+		else {
+			if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+			miunashout_connecticon();
+			socket.disconnect();
+			if(!$('#usr_ban').length) {
+				$('<div/>', { id: 'usr_ban', class: 'top-right' }).appendTo('body');
+			}
+			setTimeout(function() {
+				$('#usr_ban').jGrowl(usr_banlang, { life: 1500 });
+			},200);
+		}
 	});
-
 }
 
 function miunashout(socket) {
@@ -1256,10 +1220,6 @@ function miunashout(socket) {
 
 	($.fn.on || $.fn.live).call($(document), 'click', '#logoff_yes', function (e) {
 		e.preventDefault();
-		msb_token = JSON.parse(localStorage.getItem('msb_token'));
-		if (msb_token) {
-			localStorage.removeItem('msb_token');
-		}
 		sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
 		if (!sb_sty) {
 			sb_sty = {};
