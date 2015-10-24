@@ -763,7 +763,7 @@ function miunashout(socket) {
 		npostbase = '';
 
 		if (window.innerWidth < 650 || (window.innerWidth < window.innerHeight)) {
-			 widthwin = document.getElementById("edshout_e").offsetWidth;
+			 widthwin = document.getElementById("mshout_e").offsetWidth;
 		}
 		if (window.innerWidth < window.innerHeight) {
 			heightwin = widthwin*0.8;
