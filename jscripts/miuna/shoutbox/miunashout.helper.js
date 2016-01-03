@@ -2,7 +2,7 @@
  * Miuna Shoutbox
  * https://github.com/martec
  *
- * Copyright (C) 2015-2015, Martec
+ * Copyright (C) 2015-2016, Martec
  *
  * Miuna Shoutbox is licensed under the GPL Version 3, 29 June 2007 license:
  *	http://www.gnu.org/copyleft/gpl.html
@@ -11,6 +11,7 @@
  * @author Martec
  * @requires jQuery, Nodejs, Socket.io, Express, MongoDB, mongoose, debug and Mybb
  */
+var loadimg = 0;
 function escapeHtml(text) {
   var map = {
 	'&': '&amp;',
@@ -138,8 +139,8 @@ function autocleaner(area,count,numshouts,direction) {
 	},200);
 }
 
-function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,font,size,bold,avatar,hour,username,nickto,message,type,ckold,direction,numshouts,cur) {
-	var preapp = lanpm = pmspan = area = scrollarea = count = coloruser = usravatar = shoutstyle = '';
+function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,font,size,bold,avatar,hour,username,nickto,message,type,ckold,direction,numshouts,cur,edtusr) {
+	var preapp = lanpm = pmspan = edtspan = area = scrollarea = count = coloruser = usravatar = shoutstyle = '';
 	if(direction=='top'){
 		preapp = 'prepend';
 		if (reqtype == 'logback') {
@@ -213,17 +214,20 @@ function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,font,size,bold,avatar,
 			}
 		}
 	}
+	if (parseInt(edtusr)!=0) {
+		edtspan = "<span class='edt_class'> ["+edt_bylan+" "+edtusr+"]</span>";
+	}
 	if ((reqtype == 'shout' || reqtype == 'lognext' || reqtype == 'logback') && (type == 'pmshout' || type == 'pmsystem')) {
 		pmspan = "<span class='pm_inf'>["+lanpm+" "+nickto+"] </span>";
 	}
 	if(type == 'shout' || type == 'pmshout') {
-		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+"<span class='time_msgShout'><span>[</span>"+hour+"<span>]</span></span>"+pmspan+"<span class='username_msgShout'>"+username+"</span>:<span class='content_msgShout' style='"+shoutstyle+"'>"+message+"</span></div>");
+		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+"<span class='time_msgShout'><span>[</span>"+hour+"<span>]</span></span>"+pmspan+"<span class='username_msgShout'>"+username+"</span>:<span class='content_msgShout' style='"+shoutstyle+"'>"+message+"</span>"+edtspan+"</div>");
 	}
 	if(type == 'system' || type == 'pmsystem') {
-		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+""+pmspan+"*<span class='username_msgShout'>"+username+"</span><span class='content_msgShout' style='"+shoutstyle+"'>"+message+"</span>*</div>");
+		$(""+area+"")[preapp]("<div class='msgShout "+count+" "+escapeHtml(key)+"' data-uid="+parseInt(uid)+" data-ided="+escapeHtml(key)+">"+usravatar+""+pmspan+"*<span class='username_msgShout'>"+username+"</span><span class='content_msgShout' style='"+shoutstyle+"'>"+message+"</span>"+edtspan+"*</div>");
 	}
 	if(cur==0) {
-		if(parseInt(actaimg)) {
+		if(parseInt(actaimg) && parseInt(loadimg)) {
 			imgconv(count);
 		}
 		if (reqtype == 'lognext' || reqtype == 'logback') {
@@ -384,6 +388,7 @@ function miunashout(socket) {
 	if (sb_sty) {
 		shoutvol = sb_sty['sound'];
 		mentsound = sb_sty['mentsound'];
+		loadimg = sb_sty['loadimg'];
 	}
 
 	sb_ign = JSON.parse(localStorage.getItem('sb_ign_lst'));
@@ -426,7 +431,7 @@ function miunashout(socket) {
 	socket.emit('getnot', function (data) {});
 	socket.once('getnot', function (data) {
 		if (data) {
-			$(".notshow").text(escapeHtml(data.not));
+			$(".notshow").html(regexmiuna(escapeHtml(revescapeHtml(data.not))));
 		}
 	});
 
@@ -457,7 +462,7 @@ function miunashout(socket) {
 
 	socket.on('updnot', function (data) {
 		if (data) {
-			$(".notshow").text(escapeHtml(data.not));
+			$(".notshow").html(regexmiuna(escapeHtml(revescapeHtml(data.not))));
 		}
 		else {
 			$(".notshow").text('');
@@ -592,7 +597,7 @@ function miunashout(socket) {
 		}
 	}
 
-	function displayMsg(reqtype, message, username, uidp, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, type, key, created, ckold, cur){
+	function displayMsg(reqtype, message, username, uidp, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, edtusr, type, key, created, ckold, cur){
 		var hour = moment(created).utcOffset(parseInt(zoneset)).format(zoneformt);
 		message = regexmiuna(escapeHtml(revescapeHtml(message))),
 		nums = numshouts;
@@ -611,7 +616,7 @@ function miunashout(socket) {
 			}
 		}
 
-		shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,font,size,bold,avatar,hour,username,nickto,message,type,ckold,direction,nums,cur);
+		shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,font,size,bold,avatar,hour,username,nickto,message,type,ckold,direction,nums,cur,edtusr);
 		if (uidlist[uid]==1) {
 			$("[data-uid="+uid+"]").find(".time_msgShout span").css("color",on_color);
 		}
@@ -633,22 +638,22 @@ function miunashout(socket) {
 		}
 	};
 
-	function checkMsg(req, msg, nick, nickto, uid, gid, colorsht, font, size, bold, avatar, uidto, edt, type, _id, created, ckold, cur) {
+	function checkMsg(req, msg, nick, nickto, uid, gid, colorsht, font, size, bold, avatar, uidto, edt, edtusr, type, _id, created, ckold, cur) {
 		var mtype = 'shout';
 
 		if (req=='lognext' || req=='logback') {
 			mtype = req;
 		}
 		if (nickto=='0') {
-			displayMsg(mtype, msg, nick, uid, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, type, _id, created, ckold, cur);
+			displayMsg(mtype, msg, nick, uid, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, edtusr, type, _id, created, ckold, cur);
 		}
 		else {
 			if (uid==msbvar.mybbuid) {
 				if (req=="msg" || req=='lognext' || req=='logback') {
-					displayMsg(mtype, msg, nick, uidto, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, type, _id, created, ckold, cur);
+					displayMsg(mtype, msg, nick, uidto, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, edtusr, type, _id, created, ckold, cur);
 				}
 				if ($("[data-uidpm="+uidto+"]").length && req!='lognext' && req!='logback') {
-					displayMsg("pm", msg, nick, uidto, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, type, _id, created, ckold, cur);
+					displayMsg("pm", msg, nick, uidto, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, edtusr, type, _id, created, ckold, cur);
 				}
 				else {
 					return;
@@ -656,10 +661,10 @@ function miunashout(socket) {
 			}
 			else if (uidto==msbvar.mybbuid) {
 				if (req=="msg" || req=='lognext' || req=='logback') {
-					displayMsg(mtype, msg, nick, uid, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, type, _id, created, ckold, cur);
+					displayMsg(mtype, msg, nick, uid, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, edtusr, type, _id, created, ckold, cur);
 				}
 				if($("[data-uidpm="+uid+"]").length && req!='lognext' && req!='logback') {
-					displayMsg("pm", msg, nick, uid, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, type, _id, created, ckold, cur);
+					displayMsg("pm", msg, nick, uid, uid, gid, colorsht, font, size, bold, avatar, nickto, edt, edtusr, type, _id, created, ckold, cur);
 				}
 				else {
 					return;
@@ -673,7 +678,7 @@ function miunashout(socket) {
 
 	socket.once('load old msgs', function(docs){
 		for (var i = docs.length-1; i >= 0; i--) {
-			checkMsg("msg", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
+			checkMsg("msg", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].edtusr, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 		}
 	});
 
@@ -683,10 +688,10 @@ function miunashout(socket) {
 			sound.volume = parseFloat(shoutvol);
 			sound.play();
 		}
-		checkMsg("msg", data.msg, data.nick, data.nickto, data.uid, data.gid, data.colorsht, data.font, data.size, data.bold, data.avatar, data.uidto, data.edt, data.type, data._id, data.created, 'new', 0);
+		checkMsg("msg", data.msg, data.nick, data.nickto, data.uid, data.gid, data.colorsht, data.font, data.size, data.bold, data.avatar, data.uidto, data.edt, data.edtusr, data.type, data._id, data.created, 'new', 0);
 	});
 
-	function updmsg(message, key){
+	function updmsg(message, edtusr, key){
 		message = regexmiuna(escapeHtml(revescapeHtml(message)));
 		setTimeout(function() {
 			if(parseInt(actaimg)) {
@@ -730,12 +735,13 @@ function miunashout(socket) {
 			},200);
 		}
 		$('div.'+key+'').children('.content_msgShout').html(message);
+		$('div.'+key+'').children('.content_msgShout').after("<span class='edt_class'> ["+edt_bylan+" "+edtusr+"]</span>");
 		$("div."+key+"").css("background-color",edt_color);
 	}
 
 	socket.on('updmsg', function (data) {
 		if (data) {
-			updmsg(data.msg, data._id);
+			updmsg(data.msg, data.edtusr, data._id);
 		}
 	});
 
@@ -750,7 +756,7 @@ function miunashout(socket) {
 		socket.emit('logfpgmsg', {mpp:numslogs});
 		socket.once('logfpgmsg', function(docs){
 			for (var i = docs.length-1; i >= 0; i--) {
-				checkMsg('lognext', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
+				checkMsg('lognext', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].edtusr, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 			}
 		});
 	}
@@ -833,7 +839,7 @@ function miunashout(socket) {
 			socket.emit('logmsgnext', {id:prevpagefirstid, mpp:numslogs});
 			socket.once('logmsgnext', function (docs) {
 				for (var i = docs.length-1; i >= 0; i--) {
-					checkMsg('lognext', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
+					checkMsg('lognext', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].edtusr, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 				}
 			});
 		}
@@ -873,7 +879,7 @@ function miunashout(socket) {
 			socket.emit('logmsgback', {id:prevpagelastid, mpp:numslogs});
 			socket.once('logmsgback', function (docs) {
 				for (var i = docs.length-1; i >= 0; i--) {
-					checkMsg('logback', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
+					checkMsg('logback', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].edtusr, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 				}
 			});
 		}
@@ -890,7 +896,7 @@ function miunashout(socket) {
 				socket.emit('getoldpmmsg', {ns: numshouts, suid: uid});
 				socket.once('load old pm msgs', function(docs){
 					for (var i = docs.length-1; i >= 0; i--) {
-						checkMsg("pm", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
+						checkMsg("pm", docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].edtusr, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
 					}
 				});
 			}
@@ -1110,13 +1116,19 @@ function miunashout(socket) {
 		$.modal.close();
 	});
 
-	function soundfunc() {
-		heightwin = 140;
-		checked = '';
+	function settingsfunc() {
+		heightwin = 170;
+		checked = imgload_span = checkedimg = '';
 		if (mentsound) {
 			checked = 'checked';
 		}
-		$('body').append( '<div class="sound"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+sound_lan+'</strong></div></td></tr><tr><td class="tcat">'+volume_lan+':</td></tr><tr><td class="trow1" style="text-align:center;">'+min_lan+'<input id="s_volume" type="range" min="0" max="1" step="0.05" value="'+parseFloat(shoutvol)+'"/>'+max_lan+'</td></tr><tr><td class="trow1"><input type="checkbox" id="mentsound" '+checked+'>'+ment_sound+'</td></tr></table></div><td></div>' );
+		if (parseInt(actaimg)) {
+			if (loadimg) {
+				checkedimg = 'checked';
+			}
+			imgload_span = '<tr><td class="trow1"><input type="checkbox" id="imgloadopt" '+checkedimg+'>'+loadimg_lan+'</td></tr>';
+		}
+		$('body').append( '<div class="settings"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+settings_lan+'</strong></div></td></tr>'+imgload_span+'<tr><td class="tcat">'+volume_lan+':</td></tr><tr><td class="trow1" style="text-align:center;">'+min_lan+'<input id="s_volume" type="range" min="0" max="1" step="0.05" value="'+parseFloat(shoutvol)+'"/>'+max_lan+'</td></tr><tr><td class="trow1"><input type="checkbox" id="mentsound" '+checked+'>'+ment_sound+'</td></tr></table></div><td></div>' );
 		var soundinput = document.getElementById("s_volume");
 		soundinput.addEventListener("input", function() {
 			var sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
@@ -1127,6 +1139,24 @@ function miunashout(socket) {
 			localStorage.setItem('sb_col_ft', JSON.stringify(sb_sty));
 			shoutvol = parseFloat(soundinput.value);
 		}, false);
+		var loadimginput = document.getElementById("imgloadopt");
+		if (loadimginput) {
+			loadimginput.addEventListener("change", function() {
+				var sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
+				if (!sb_sty) {
+					sb_sty = {};
+				}
+				if (loadimginput.checked) {
+					sb_sty['loadimg'] = 1;
+					loadimg = 1;
+				} 
+				else {
+					sb_sty['loadimg'] = 0;
+					loadimg = 0;
+				}
+				localStorage.setItem('sb_col_ft', JSON.stringify(sb_sty));
+			}, false);	
+		}
 		var mentsoundinput = document.getElementById("mentsound");
 		mentsoundinput.addEventListener("change", function() {
 			var sb_sty = JSON.parse(localStorage.getItem('sb_col_ft'));
@@ -1142,15 +1172,15 @@ function miunashout(socket) {
 				mentsound = 0;
 			}
 			localStorage.setItem('sb_col_ft', JSON.stringify(sb_sty));
-		}, false);		
-		$('.sound').modal({ zIndex: 7 });
+		}, false);
+		$('.settings').modal({ zIndex: 7 });
 	}
 
-	sound = '<a class="yuieditor-button" id="sound" title="'+sound_lan+'"><div style="background-image: url('+rootpath+'/images/sound.png); opacity: 1; cursor: pointer;">'+sound_lan+'</div></a>';
-	$(sound).appendTo('.yuieditor-group_shout_text:last');
+	settings = '<a class="yuieditor-button" id="settings" title="'+settings_lan+'"><div style="background-image: url('+rootpath+'/images/settings.png); opacity: 1; cursor: pointer;">'+settings_lan+'</div></a>';
+	$(settings).appendTo('.yuieditor-group_shout_text:last');
 
-	($.fn.on || $.fn.live).call($(document), 'click', '#sound', function (e) {
-		soundfunc();
+	($.fn.on || $.fn.live).call($(document), 'click', '#settings', function (e) {
+		settingsfunc();
 	});
 
 	pmlist = '<a class="yuieditor-button" id="pml" title="'+pm_lan+'"><div style="background-image: url('+rootpath+'/images/new_pm.png); opacity: 1; cursor: pointer;">'+pm_lan+'</div></a>';

@@ -51,6 +51,9 @@
 	margin-left: 3px;
 	word-break: break-all;
 }
+.msgShout > .edt_class{
+	font-size: smaller;
+}
 .msb_tvatar img {
 	border: 1px solid #D5D5D5;
 	max-width: 20px;
@@ -73,7 +76,7 @@
 	margin-top: 7px;
 	width: 30px;
 }
-#banusr div, #notice div, #prune div, #pml div, #log div, #sound div, #login div, #msb_connect div, #logoff div {
+#banusr div, #notice div, #prune div, #pml div, #log div, #settings div, #login div, #msb_connect div, #logoff div {
 	height: 16px;
 	width: 16px;
 }

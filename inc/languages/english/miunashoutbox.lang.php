@@ -3,7 +3,7 @@
  * Miuna Shoutbox
  * https://github.com/martec
  *
- * Copyright (C) 2015-2015, Martec
+ * Copyright (C) 2015-2016, Martec
  *
  * Miuna Shoutbox is licensed under the GPL Version 3, 29 June 2007 license:
  *	http://www.gnu.org/copyleft/gpl.html
@@ -47,7 +47,7 @@ $l['miunashoutbox_ban_yourself'] = 'You cannot ban yourself.';
 $l['miunashoutbox_prune_msg'] = 'Prune';
 $l['miunashoutbox_prune_shout'] = 'Prune the Shoutbox';
 $l['miunashoutbox_notice_msg'] = 'Notice';
-$l['miunashoutbox_sound_msg'] = 'Sound';
+$l['miunashoutbox_settings_msg'] = 'Settings';
 $l['miunashoutbox_volume_msg'] = 'Volume';
 $l['miunashoutbox_vmin_msg'] = 'Min';
 $l['miunashoutbox_vmax_msg'] = 'Max';
@@ -61,4 +61,6 @@ $l['miunashoutbox_del_msg'] = 'Delete';
 $l['miunashoutbox_del_mesg'] = 'Delete the message';
 $l['miunashoutbox_conf_quest'] = 'Are you sure?';
 $l['miunashoutbox_cancel_edt'] = 'Cancel the edit';
+$l['miunashoutbox_edited_by'] = 'Last edit by:';
+$l['miunashoutbox_load_img'] = 'Load image link?';
 ?>

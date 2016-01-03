@@ -3,7 +3,7 @@
  * Miuna Shoutbox
  * https://github.com/martec
  *
- * Copyright (C) 2015-2015, Martec
+ * Copyright (C) 2015-2016, Martec
  *
  * Miuna Shoutbox is licensed under the GPL Version 3, 29 June 2007 license:
  *	http://www.gnu.org/copyleft/gpl.html
@@ -21,7 +21,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define('MSB_PLUGIN_VER', '6.0.1');
+define('MSB_PLUGIN_VER', '7.0.0');
 
 function miunashoutbox_info()
 {
@@ -462,6 +462,7 @@ function miunashoutbox_activate()
 	spo_lan = '{\$lang->miunashoutbox_spoiler}',
 	show_lan = '{\$lang->miunashoutbox_show}',
 	hide_lan = '{\$lang->miunashoutbox_hide}',
+	edt_bylan = '{\$lang->miunashoutbox_edited_by}',
 	pm_lan = '{\$lang->miunashoutbox_sel_pm}',
 	pm_fromlan = '{\$lang->miunashoutbox_pm_from}',
 	pm_tolan = '{\$lang->miunashoutbox_pm_to}',
@@ -500,7 +501,8 @@ function miunashoutbox_activate()
 	shout_savelan = '{\$lang->miunashoutbox_save}',
 	shout_delan = '{\$lang->miunashoutbox_del_msg}',
 	cancel_editlan = '{\$lang->miunashoutbox_cancel_edt}',
-	sound_lan = '{\$lang->miunashoutbox_sound_msg}',
+	settings_lan = '{\$lang->miunashoutbox_settings_msg}',
+	loadimg_lan = '{\$lang->miunashoutbox_load_img}',
 	volume_lan = '{\$lang->miunashoutbox_volume_msg}',
 	min_lan = '{\$lang->miunashoutbox_vmin_msg}',
 	max_lan = '{\$lang->miunashoutbox_vmax_msg}',
@@ -898,6 +900,7 @@ function msb_token_gen() {
 
 	$data = array(
 		"user" => $name,
+		"username" => $mybb->user['username'],
 		"uid" => $mybb->user['uid'],
 		"gid" => $mybb->user['usergroup'],
 		"mod" => $msbmod,
