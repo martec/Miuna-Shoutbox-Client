@@ -735,7 +735,12 @@ function miunashout(socket) {
 			},200);
 		}
 		$('div.'+key+'').children('.content_msgShout').html(message);
-		$('div.'+key+'').children('.content_msgShout').after("<span class='edt_class'> ["+edt_bylan+" "+edtusr+"]</span>");
+		if ($('div.'+key+'').has('.edt_class').length) {
+			$('div.'+key+'').children('.edt_class').html("<span class='edt_class'> ["+edt_bylan+" "+edtusr+"]</span>");
+		}
+		else {
+			$('div.'+key+'').children('.content_msgShout').after("<span class='edt_class'> ["+edt_bylan+" "+edtusr+"]</span>");
+		}
 		$("div."+key+"").css("background-color",edt_color);
 	}
 
