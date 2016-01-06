@@ -483,7 +483,7 @@ function miunashout(socket) {
 		$('.msgShout').remove();
 	});
 
-	var last_check = Date.now()/1000;
+	var last_check = Date.now()/1000 - msbvar.floodtime;
 
 	$('#shout_text').keypress(function(e) {
 		if(e.which == 13) {
