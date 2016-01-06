@@ -340,7 +340,17 @@ function miunashout_connect_token(token) {
 				$('#usr_ban').jGrowl(usr_banlang, { life: 1500 });
 			},200);
 		}
-	});
+	}).once("error", function(error) {
+		if ($("#auto_log").length) { $("#auto_log .jGrowl-notification:last-child").remove(); }
+		if (error.type == "UnauthorizedError" || error.code == "invalid_token") {
+			if(!$('#exp_token').length) {
+				$('<div/>', { id: 'exp_token', class: 'top-right' }).appendTo('body');
+			}
+			setTimeout(function() {
+				$('#exp_token').jGrowl(exp_toklang, { life: 1500 });
+			},200);
+		}
+	});;
 }
 
 function miunashout(socket) {

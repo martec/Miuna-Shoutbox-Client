@@ -36,6 +36,7 @@ $l['miunashoutbox_add_spoiler'] = 'Add Spoiler Tag';
 $l['miunashoutbox_up_imgur'] = 'Upload to Imgur';
 $l['miunashoutbox_connect'] = 'Connect';
 $l['miunashoutbox_auto_load'] = '  Loading...';
+$l['miunashoutbox_exp_token'] = 'Expired Token. Refresh the page to obtain new Token.';
 $l['miunashoutbox_logoff'] = 'Logoff';
 $l['miunashoutbox_ign_sys'] = 'Ignore Users';
 $l['miunashoutbox_ign_usr'] = 'The contents of this message are removed because this user is on your ignore list.';
