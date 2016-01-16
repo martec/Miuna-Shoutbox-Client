@@ -21,7 +21,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define('MSB_PLUGIN_VER', '7.2.1');
+define('MSB_PLUGIN_VER', '7.5.0');
 
 function miunashoutbox_info()
 {
@@ -1037,4 +1037,40 @@ function msb_gettoken()
 	}
 }
 
+if ($settings['miunashout_online']) {
+	$plugins->add_hook('admin_config_badwords_add_commit', 'MSB_updatebadword');
+	$plugins->add_hook('admin_config_badwords_delete_commit', 'MSB_updatebadword');
+	$plugins->add_hook('admin_config_badwords_edit_commit', 'MSB_updatebadword');
+}
+function MSB_updatebadword()
+{
+	global $mybb, $badwordcache, $cache;
+	
+	if(!$badwordcache)
+	{
+		if(!is_array($badword_cache))
+		{
+			$badword_cache = $cache->read("badwords");
+		}
+		foreach($badword_cache as $badword)
+		{
+			$badword['badword'] = preg_quote(htmlspecialchars_uni($badword['badword']));
+			if(!$badword['replacement'])
+			{
+				$badword['replacement'] = "*****";
+			}
+			$badword['replacement'] = htmlspecialchars_uni($badword['replacement']);
+			$badwordcache[$badword['bid']] = $badword;
+		}
+	}
+	
+	$data = array(
+		"badw" => $badwordcache,
+		"token" => msb_token_gen()
+	);
+
+	unset($badword);
+	
+	sendPostDataMSB('upbadwl', $data);
+}
 ?>

@@ -70,13 +70,7 @@
 	border-bottom-style: none;
 	margin-bottom: 0px !important;
 }
-#font_color {
-	height: 16px;
-	border: medium none;
-	margin-top: 7px;
-	width: 30px;
-}
-#banusr div, #notice div, #prune div, #pml div, #log div, #settings div, #login div, #msb_connect div, #logoff div {
+.yuieditor-button div {
 	height: 16px;
 	width: 16px;
 }
