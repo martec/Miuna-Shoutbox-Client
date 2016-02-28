@@ -11,7 +11,7 @@
  * @author Martec
  * @requires jQuery, Nodejs, Socket.io, Express, MongoDB, mongoose, debug and Mybb
  */
-var loadimg = 0;
+var loadimg = 1;
 function escapeHtml(text) {
   var map = {
 	'&': '&amp;',
@@ -47,9 +47,7 @@ function regexment(text,nick) {
 				if (nick.toUpperCase() == String(res).toUpperCase()) {
 					return 1;
 				}
-				return 0;
 			}
-			return 0;
 		}
 		return 0;
 	}
@@ -365,6 +363,128 @@ function miunashout(socket) {
 
 	if (parseInt(numshouts)>100) {
 		numshouts = '100';
+	}
+	
+	($.fn.on || $.fn.live).call($(document), 'click', '#htmlgenerator', function (e) {
+		e.preventDefault();
+		var elHtml = document.getElementsByClassName('loglist')[0].innerHTML,
+		link = document.createElement('a'),
+		mimeType = 'text/html',
+		now = moment().utcOffset(parseInt(zoneset)).format(zoneformt);
+		link.id = "loglink",
+		link.setAttribute('download', 'log('+document.getElementById('pagecount').innerHTML+')('+now+').html');
+		link.setAttribute('href', 'data:' + mimeType  +	 ';charset=utf-8,' + encodeURIComponent(elHtml));
+		document.getElementsByClassName('loglist')[0].appendChild(link);
+		$('a#loglink')[0].click();
+	});
+	
+	($.fn.on || $.fn.live).call($(document), 'click', '#page_next', function (e) {
+		e.preventDefault();
+		var actpage = $('#pagecount').attr('data-pageact'),
+		maxpage = $('#pagecount').attr('data-pagemax');
+
+		if (parseInt(actpage)==parseInt(maxpage)) {
+			return;
+		}
+		else {
+			var newactpage = parseInt(actpage) + 1,
+			newpagelist = newactpage+"/"+maxpage,
+			prevpagefirstid = '';
+			if(direction=='top'){
+				prevpagefirstid = $(".msglog:last").attr('data-ided');
+			}
+			else {
+				prevpagefirstid = $(".msglog:first").attr('data-ided');
+			}
+			$('#pagecount').text(newpagelist);
+			$('.loglist').remove();
+			$(".logstyle").append('<div class="loglist"></div>');
+			$('#pagecount').attr('data-pageact', newactpage);
+			$('#pagecount').val(newpagelist);
+
+			numslogs = '';
+			if (parseInt(msbvar.mpp)>200) {
+				numslogs = '200';
+			}
+			else {
+				numslogs = msbvar.mpp;
+			}
+			socket.emit('logmsgnext', {id:prevpagefirstid, mpp:numslogs});
+			socket.once('logmsgnext', function (docs) {
+				for (var i = docs.length-1; i >= 0; i--) {
+					checkMsg('lognext', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].edtusr, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
+				}
+			});
+		}
+	});
+
+	($.fn.on || $.fn.live).call($(document), 'click', '#page_back', function (e) {
+		e.preventDefault();
+		var actpage = $('#pagecount').attr('data-pageact'),
+		maxpage = $('#pagecount').attr('data-pagemax');
+
+		if (parseInt(actpage)==1) {
+			return;
+		}
+		else {
+			var newactpage = parseInt(actpage) - 1,
+			newpagelist = newactpage+"/"+maxpage,
+			prevpagelastid = '';
+			if(direction=='top'){
+				prevpagelastid = $(".msglog:first").attr('data-ided');
+			}
+			else {
+				prevpagelastid = $(".msglog:last").attr('data-ided');
+			}
+			$('#pagecount').text(newpagelist);
+			$('.loglist').remove();
+			$(".logstyle").append('<div class="loglist"></div>');
+			$('#pagecount').attr('data-pageact', newactpage);
+			$('#pagecount').val(newpagelist);
+
+			numslogs = '';
+			if (parseInt(msbvar.mpp)>200) {
+				numslogs = '200';
+			}
+			else {
+				numslogs = msbvar.mpp;
+			}
+			socket.emit('logmsgback', {id:prevpagelastid, mpp:numslogs});
+			socket.once('logmsgback', function (docs) {
+				for (var i = docs.length-1; i >= 0; i--) {
+					checkMsg('logback', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].edtusr, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
+				}
+			});
+		}
+	});
+	
+	if( $('#msb_arch').attr("id") ) {
+		var page = '',
+		initpage = '',
+		npostbase = '';
+		socket.emit('countmsg', function (data) {});
+		socket.once('countmsg', function (data) {
+			numslogs = '';
+			if (parseInt(msbvar.mpp)>200) {
+				numslogs = '200';
+			}
+			else {
+				numslogs = msbvar.mpp;
+			}
+			npostbase = data;
+			pagebase = Math.ceil(npostbase/numslogs);
+			npost = npostbase + pagebase;
+			page = Math.ceil(npost/numslogs);
+			if (page>1) {
+				initpage = "1/"+page;
+			}
+			else {
+				initpage = "1/1";
+			}
+			$('#msb_arch').append( '<tr><td class="thead" colspan="2"><div><strong>'+log_shoutlan+'</strong></div></td></tr><tr><td class="trow1" colspan="2"><div class="logstyle" style="word-break:break-all"><div class="loglist"></div></div></td></tr><td class="trow1"><div id="page" style="text-align:center"><button id="page_back" style="margin:4px;">'+log_backlan+'</button> <span id="pagecount" data-pageact="1" data-pagemax="'+page+'">'+initpage+'</span> <button id="page_next" style="margin:4px;">'+log_nextlan+'</button><button id="htmlgenerator" style="margin:4px;">'+log_htmllan+'</button></div></td>' );
+			logfunc();
+		});
+		return;
 	}
 
 	var shoutbut = '<button id="sbut" style="margin: 2px; float: right;">'+shout_lang+'</button>';
@@ -704,7 +824,7 @@ function miunashout(socket) {
 	function updmsg(message, edtusr, key){
 		message = regexmiuna(escapeHtml(revescapeHtml(message)));
 		setTimeout(function() {
-			if(parseInt(actaimg)) {
+			if(parseInt(actaimg) && parseInt(loadimg)) {
 				imgconv(count);
 			}
 			if ($('.shoutarea').children().hasClass(key)) {
@@ -777,6 +897,10 @@ function miunashout(socket) {
 	}
 
 	($.fn.on || $.fn.live).call($(document), 'click', '#log', function (e) {
+		if (parseInt(arcap)) {
+			window.open(rootpath+'/usercp.php?action=msb_arch');
+			return;
+		}
 		var heightwin = window.innerHeight*0.8,
 		widthwin = window.innerWidth*0.5,
 		page = '',
@@ -790,7 +914,8 @@ function miunashout(socket) {
 			heightwin = widthwin*0.8;
 		}
 
-		function displayfpglogMsg(data){
+		socket.emit('countmsg', function (data) {});
+		socket.once('countmsg', function (data) {
 			numslogs = '';
 			if (parseInt(msbvar.mpp)>200) {
 				numslogs = '200';
@@ -808,96 +933,10 @@ function miunashout(socket) {
 			else {
 				initpage = "1/1";
 			}
-
 			$('body').append( '<div id="logpop" style="width: '+widthwin+'px;max-width:900px !important"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+log_shoutlan+'</strong></div></td></tr><tr><td class="trow1" colspan="2"><div class="logstyle" style="overflow-y: auto;width:99%;height: '+heightwin*0.7+'px;word-break:break-all"><div class="loglist"></div></div></td></tr><td class="trow1"><div id="page" style="text-align:center"><button id="page_back" style="margin:4px;">'+log_backlan+'</button> <span id="pagecount" data-pageact="1" data-pagemax="'+page+'">'+initpage+'</span> <button id="page_next" style="margin:4px;">'+log_nextlan+'</button><button id="htmlgenerator" style="margin:4px;">'+log_htmllan+'</button></div></td></table></div></div>' );
 			$('#logpop').modal({ zIndex: 7 });
 			logfunc();
-		}
-
-		socket.emit('countmsg', function (data) {});
-		socket.once('countmsg', function (data) {
-			displayfpglogMsg(data);
 		});
-	});
-
-	($.fn.on || $.fn.live).call($(document), 'click', '#page_next', function (e) {
-		e.preventDefault();
-		var actpage = $('#pagecount').attr('data-pageact'),
-		maxpage = $('#pagecount').attr('data-pagemax');
-
-		if (parseInt(actpage)==parseInt(maxpage)) {
-			return;
-		}
-		else {
-			var newactpage = parseInt(actpage) + 1,
-			newpagelist = newactpage+"/"+maxpage,
-			prevpagefirstid = '';
-			if(direction=='top'){
-				prevpagefirstid = $(".msglog:last").attr('data-ided');
-			}
-			else {
-				prevpagefirstid = $(".msglog:first").attr('data-ided');
-			}
-			$('#pagecount').text(newpagelist);
-			$('.loglist').remove();
-			$(".logstyle").append('<div class="loglist"></div>');
-			$('#pagecount').attr('data-pageact', newactpage);
-			$('#pagecount').val(newpagelist);
-
-			numslogs = '';
-			if (parseInt(msbvar.mpp)>200) {
-				numslogs = '200';
-			}
-			else {
-				numslogs = msbvar.mpp;
-			}
-			socket.emit('logmsgnext', {id:prevpagefirstid, mpp:numslogs});
-			socket.once('logmsgnext', function (docs) {
-				for (var i = docs.length-1; i >= 0; i--) {
-					checkMsg('lognext', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].edtusr, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
-				}
-			});
-		}
-	});
-
-	($.fn.on || $.fn.live).call($(document), 'click', '#page_back', function (e) {
-		e.preventDefault();
-		var actpage = $('#pagecount').attr('data-pageact'),
-		maxpage = $('#pagecount').attr('data-pagemax');
-
-		if (parseInt(actpage)==1) {
-			return;
-		}
-		else {
-			var newactpage = parseInt(actpage) - 1,
-			newpagelist = newactpage+"/"+maxpage,
-			prevpagelastid = '';
-			if(direction=='top'){
-				prevpagelastid = $(".msglog:first").attr('data-ided');
-			}
-			else {
-				prevpagelastid = $(".msglog:last").attr('data-ided');
-			}
-			$('#pagecount').text(newpagelist);
-			$('.loglist').remove();
-			$(".logstyle").append('<div class="loglist"></div>');
-			$('#pagecount').attr('data-pageact', newactpage);
-			$('#pagecount').val(newpagelist);
-
-			numslogs = '';
-			if (parseInt(msbvar.mpp)>200) {
-				numslogs = '200';
-			}
-			else {
-				numslogs = msbvar.mpp;
-			}
-			socket.emit('logmsgback', {id:prevpagelastid, mpp:numslogs});
-			socket.once('logmsgback', function (docs) {
-				for (var i = docs.length-1; i >= 0; i--) {
-					checkMsg('logback', docs[i].msg, docs[i].nick, docs[i].nickto, docs[i].uid, docs[i].gid, docs[i].colorsht, docs[i].font, docs[i].size, docs[i].bold, docs[i].avatar, docs[i].uidto, docs[i].edt, docs[i].edtusr, docs[i].type, docs[i]._id, docs[i].created, 'old', i);
-				}
-			});
-		}
 	});
 
 	function genpmfun(uid,nick){
@@ -1237,19 +1276,6 @@ function miunashout(socket) {
 	log = '<a class="yuieditor-button" id="log" title="'+log_msglan+'"><div style="background-image: url('+rootpath+'/images/log.png); opacity: 1; cursor: pointer;">'+log_msglan+'</div></a>';
 	$(log).appendTo('.yuieditor-group_shout_text:last');
 
-	($.fn.on || $.fn.live).call($(document), 'click', '#htmlgenerator', function (e) {
-		e.preventDefault();
-		var elHtml = document.getElementsByClassName('loglist')[0].innerHTML,
-		link = document.createElement('a'),
-		mimeType = 'text/html',
-		now = moment().utcOffset(parseInt(zoneset)).format(zoneformt);
-		link.id = "loglink",
-		link.setAttribute('download', 'log('+document.getElementById('pagecount').innerHTML+')('+now+').html');
-		link.setAttribute('href', 'data:' + mimeType  +	 ';charset=utf-8,' + encodeURIComponent(elHtml));
-		document.getElementsByClassName('loglist')[0].appendChild(link);
-		$('a#loglink')[0].click();
-	});
-
 	function logofffunc() {
 		heightwin = 120;
 		$('body').append( '<div class="logoff"><div style="overflow-y: auto;max-height: '+heightwin+'px !important; "><table cellspacing="'+theme_borderwidth+'" cellpadding="'+theme_tablespace+'" class="tborder"><tr><td class="thead" colspan="2"><div><strong>'+logofflang+':</strong></div></td></tr><td class="trow1">'+conf_questlan+'</td></table></div><td><button id="logoff_yes" style="margin:4px;">'+shout_yeslan+'</button><button id="no_ans" style="margin:4px;">'+shout_nolan+'</button></td></div>' );
@@ -1283,7 +1309,7 @@ function miunashout(socket) {
 		var id = $(this).attr('data-ided');
 		function edtfunc(msg, uid){
 			msg = revescapeHtml(msg);
-			if (uid == msbvar.mybbuid || $.inArray(parseInt(msbvar.mybbusergroup), msbvar.miunamodgroups.split(',').map(function(modgrup){return Number(modgrup);}))!=-1) {
+			if (( uid == msbvar.mybbuid && $.inArray(parseInt(msbvar.mybbusergroup), msbvar.miunaedtpgroups.split(',').map(function(edtpergroup){return Number(edtpergroup);}))!=-1 ) || $.inArray(parseInt(msbvar.mybbusergroup), msbvar.miunamodgroups.split(',').map(function(modgrup){return Number(modgrup);}))!=-1) {
 				$('#shout_text').attr( {"data-type": "edit", "data-id": id} );
 				$('#shout_text').val(msg);
 				if(!$('#cancel_edit').length) {

@@ -3,7 +3,7 @@
  * Miuna Shoutbox
  * https://github.com/martec
  *
- * Copyright (C) 2015-2015, Martec
+ * Copyright (C) 2015-2016, Martec
  *
  * Miuna Shoutbox is licensed under the GPL Version 3, 29 June 2007 license:
  *	http://www.gnu.org/copyleft/gpl.html
@@ -22,10 +22,14 @@ $l['miunashoutbox_shoutlimit_title'] = 'Amount of shouts';
 $l['miunashoutbox_shoutlimit_desc'] = 'Set here amount of shouts that will appear in shout area. (Limit: 100)';
 $l['miunashoutbox_logshoutlimit_title'] = 'Amount of shouts in log (archive)';
 $l['miunashoutbox_logshoutlimit_desc'] = 'Set here amount of shouts that will appear in log (archive). (Limit: 200)';
+$l['miunashoutbox_logop_title'] = 'Archive Log in another page?';
+$l['miunashoutbox_logop_desc'] = 'Set here if you want Archive Log in another page.';
 $l['miunashoutbox_nogrp_title'] = 'Group without permission to use';
 $l['miunashoutbox_nogrp_desc'] = 'Set here group that does not has permission to use Miuna Shoutbox.';
 $l['miunashoutbox_mod_title'] = 'Mod Group';
 $l['miunashoutbox_mod_desc'] = 'Set here group with moderation privilege.';
+$l['miunashoutbox_edt_title'] = 'Edit/Delete privilege Group';
+$l['miunashoutbox_edt_desc'] = 'Set here group that can edit and delete own shout.';
 $l['miunashoutbox_guest_title'] = 'Read mode to guest';
 $l['miunashoutbox_guest_desc'] = 'Guest not has access to this shout. But you can enable read only mode to guest here.';
 $l['miunashoutbox_shout_title'] = 'Title of Miuna Shoutbox';
@@ -37,13 +41,13 @@ $l['miunashoutbox_socketio_desc'] = 'Set here adress that miuna shoutbox will co
 $l['miunashoutbox_secret_title'] = 'Miuna Shoutbox Secret';
 $l['miunashoutbox_secret_desc'] = 'Set here your Miuna Shoutbox Secret.';
 $l['miunashoutbox_imgur_title'] = 'Imgur';
-$l['miunashoutbox_imgur_desc'] = 'Set here API of imgur.';
+$l['miunashoutbox_imgur_desc'] = 'Set here client id. (You can get client id in https://imgur.com/register/api_anon (oauth2 without callback))';
 $l['miunashoutbox_dataf_title'] = 'Date Format';
 $l['miunashoutbox_dataf_desc'] = 'Set here date format (Options of format you can check in http://momentjs.com/docs/).';
 $l['miunashoutbox_antiflood_title'] = 'Anti flood system';
 $l['miunashoutbox_antiflood_desc'] = 'Set here time in secound that user need wait before to shout another message. Set 0 to disable this feature.';
 $l['miunashoutbox_tokenexp_title'] = 'Token expiration';
-$l['miunashoutbox_tokenexp_desc'] = 'Set here time in minutes that need to token expire.';
+$l['miunashoutbox_tokenexp_desc'] = 'Set here time in hours that need to token expire.';
 $l['miunashoutbox_newpost_title'] = 'Shout new post';
 $l['miunashoutbox_newpost_desc'] = 'Shout when someone post in thread.';
 $l['miunashoutbox_newthread_title'] = 'Shout new thread';
