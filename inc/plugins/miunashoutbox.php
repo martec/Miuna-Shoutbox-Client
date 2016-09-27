@@ -21,7 +21,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define('MSB_PLUGIN_VER', '8.0.0');
+define('MSB_PLUGIN_VER', '9.0.0');
 
 function miunashoutbox_info()
 {
@@ -459,10 +459,10 @@ function miunashoutbox_activate()
 	require MYBB_ROOT.'/inc/adminfunctions_templates.php';
 
 	$new_template_global['codebutmiuna'] = "<link href=\"{\$mybb->asset_url}/jscripts/miuna/shoutbox/style.css?ver=".MSB_PLUGIN_VER."\" rel='stylesheet' type='text/css'>
-<script src=\"https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js\"></script>
-<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css\">
-<script type=\"text/javascript\" src=\"https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js\"></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js'></script>
+<script src=\"https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js\"></script>
+<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css\">
+<script type=\"text/javascript\" src=\"https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js\"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js'></script>
 <link rel=\"stylesheet\" href=\"{\$mybb->asset_url}/jscripts/miuna/shoutbox/editor.css?ver=".MSB_PLUGIN_VER."\" type=\"text/css\" media=\"all\" />
 <script type=\"text/javascript\">
 <!--
@@ -579,8 +579,8 @@ function miunashoutbox_activate()
 </script>";
 
 	$new_template_global['codebutmiunalog'] = "<link href=\"{\$mybb->asset_url}/jscripts/miuna/shoutbox/style.css?ver=".MSB_PLUGIN_VER."\" rel='stylesheet' type='text/css'>
-<script src=\"https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js\"></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js'></script>
+<script src=\"https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js\"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js'></script>
 <script type=\"text/javascript\">
 <!--
 	var emoticons = {
@@ -739,8 +739,8 @@ function miunashoutbox_activate()
 	</tbody>
 </table>
 <link href=\"{\$mybb->asset_url}/jscripts/miuna/shoutbox/style.css?ver=".MSB_PLUGIN_VER."\" rel='stylesheet' type='text/css'>
-<script src=\"https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js\"></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js'></script>
+<script src=\"https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js\"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js'></script>
 <script type=\"text/javascript\">
 <!--
 	var msbvar = {mybbuid:'{\$mybb->user['uid']}', mybbusername:'{\$lang->guest}', mybbavatar:'{\$mybb->user['avatar']}', mybbusergroup:'{\$mybb->user['usergroup']}', miunamodgroups:'{\$mybb->settings['miunashout_mod_grups']}', msblc:'{\$mybb->settings['miunashout_lim_character']}', floodtime:'{\$mybb->settings['miunashout_antiflood']}'},
@@ -1171,9 +1171,19 @@ if ($settings['miunashout_online'] && $settings['miunashout_newpost']) {
 }
 function MSB_newpost()
 {
-	global $mybb, $tid, $settings, $lang, $url, $thread, $forum, $db;
+	global $mybb, $tid, $settings, $lang, $url, $thread, $forum, $db, $cache;
+	
+	$msbcache = $cache->read('martec_plugins');
+	
+	$msblastpostid = $msblastpostuid = '';
+	
+	if (!empty($msbcache) && isset($msbcache['msb'])) {
+		$msblastpostcache = $msbcache['msb'];
+		$msblastpostid = $msblastpostcache['lasttid'];
+		$msblastpostuid = $msblastpostcache['lastuid'];
+	}
 
-	if(!in_array((int)$forum['fid'],explode(',',$mybb->settings['miunashout_folder_acc']))) {
+	if(!in_array((int)$forum['fid'],explode(',',$mybb->settings['miunashout_folder_acc'])) && !($msblastpostid == $tid && $msblastpostuid == $mybb->user['uid'])) {
 		$lang->load('admin/config_miunashoutbox');
 
 		$name = format_name($mybb->user['username'], $mybb->user['usergroup'], $mybb->user['displaygroup']);
@@ -1196,6 +1206,13 @@ function MSB_newpost()
 			"type" => "system",
 			"token" => msb_token_gen()
 		);
+		
+		$msblastpost['msb'] = array(
+			"lasttid" => $tid,
+			"lastuid" => $mybb->user['uid']
+		);
+		
+		$cache->update("martec_plugins", $msblastpost);
 
 		sendPostDataMSB('newposthread', $data);
 	}
@@ -1211,8 +1228,8 @@ function msb_gettoken()
 		require_once MYBB_ROOT.'inc/class_parser.php';
 		$parser = new postParser;
 	}
-
-	if ($mybb->input['action'] != "msb_gettoken" || $mybb->request_method != "post"){return false;exit;}
+	
+	if ($mybb->input['action'] != "msb_gettoken" || $mybb->request_method != "post" || in_array((int)$mybb->user['usergroup'],explode(',',$mybb->settings['miunashout_grups_acc']))){return false;exit;}
 
 	if (!verify_post_check($mybb->input['my_post_key'], true))
 	{

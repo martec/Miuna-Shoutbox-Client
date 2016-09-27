@@ -49,7 +49,7 @@ function regexmiuna(message) {
 		"<tag><div style=\"margin: 5px\"><div style=\"font-size:11px; border-radius: 3px 3px 0 0 ; padding: 4px; background: #f5f5f5;border:1px solid #ccc;font-weight:bold;color:#000;text-shadow:none; \">"+spo_lan+":&nbsp;&nbsp;<input type=\"button\" onclick=\"if (this.parentNode.parentNode.getElementsByTagName('div')[1].getElementsByTagName('div')[0].style.display != '') { this.parentNode.parentNode.getElementsByTagName('div')[1].getElementsByTagName('div')[0].style.display = '';this.innerText = ''; this.value = '"+hide_lan+"'; } else { this.parentNode.parentNode.getElementsByTagName('div')[1].getElementsByTagName('div')[0].style.display = 'none'; this.innerText = ''; this.value = '"+show_lan+"'; }\" style=\"font-size: 9px;\" value=\""+show_lan+"\"></div><div><div style=\"border:1px solid #ccc; border-radius: 0 0 3px 3px; border-top: none; padding: 4px;display: none;\">$1</div></div></div></tag>",
 		'$1<a href="$2" target="_blank">$2</a>',
 		'$1<a href="http://$2" target="_blank">$2</a>',
-		'<a href="mailto:$1">$1</a>'
+		'<a href="mailto:$2">$2</a>'
 	];
 	// Perform the actual conversion
 	for (var i =0;i<format_search.length;i++) {
@@ -133,8 +133,13 @@ function shoutgenerator(reqtype,key,uidp,uid,gid,colorsht,font,size,bold,avatar,
 		nickto = nickto.replace(/(<([^>]+)>)/ig,"");
 	}
 	if (parseInt(actavat)) {
-		if (avatar.trim()) {
-			usravatar = "<span class='msb_tvatar'><img src="+escapeHtml(avatar)+" /></span>";
+		if (avatar) {
+			if (avatar.trim()) {
+				usravatar = "<span class='msb_tvatar'><img src="+escapeHtml(avatar)+" /></span>";
+			}
+			else {
+				usravatar = "<span class='msb_tvatar'><img src='"+imagepath+"/default_avatar.png' /></span>";
+			}
 		}
 		else {
 			usravatar = "<span class='msb_tvatar'><img src='"+imagepath+"/default_avatar.png' /></span>";
